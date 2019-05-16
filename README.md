@@ -1,4 +1,3 @@
-# test
 
 > A Vue.js project
 
@@ -28,3 +27,6 @@ npm test
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+# LTE_Web
+This is a network optimization project for residential area. The front-end development uses Vue.js and ArcGIS JS api, the back-end uses ASP.net's Web Api framework, and the server uses IIS and Nginx,Arcgis server.
+>>>>>>> f9ab1fdfbd6ce69822639db87b1064e7ea1a9acd
