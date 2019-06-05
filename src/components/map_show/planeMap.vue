@@ -7,14 +7,14 @@
 </template>
 
 <script>
-  import Index from "./index";
-  import load_esri from "../utils/map_load_tool"
+  import Index from "../index";
+  import load_esri from "../../utils/map_load_tool"
   import esriLoader from 'esri-loader'
   import {getMap, post} from "@/httpConfig/api"
   // let map_apis = load_esri();
 
   export default {
-    name: "mycomponents",
+    name: "planeMap",
     components: {Index},
     data(){
       return {
@@ -299,8 +299,8 @@
 </script>
 
 <style scoped>
-  /*@import url('http://localhost/arcgis_js_api/library/4.11/esri/css/main.css');*/
-  @import url("https://js.arcgis.com/4.11/esri/css/main.css");
+  @import url('http://localhost/arcgis_js_api/library/4.11/esri/css/main.css');
+  /*@import url("https://js.arcgis.com/4.11/esri/css/main.css");*/
   /*@import url("//static/arcgis_js_api/library/4.11/esri/css/main.css");*/
   #viewDiv {
     margin: 0px auto;

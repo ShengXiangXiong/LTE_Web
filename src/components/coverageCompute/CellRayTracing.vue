@@ -242,5 +242,4 @@
   .title_css{
     font-size: 20px;
     padding-bottom: 20px;
-  }
-</style>
+  }</style>
