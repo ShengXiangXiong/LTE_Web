@@ -2,97 +2,75 @@
   <div>
     <div class="floatPage">
       <div class="title_css">
-        射线跟踪参数设定
+        射线记录
       </div>
-       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="170px" >
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="170px" >
 
-         <div class="sub_title_css">
-           小区参数
-         </div>
-         <el-form-item label="小区名称" prop="name">
-           <el-input v-model="ruleForm.name"></el-input>
-         </el-form-item>
-         <el-form-item label="覆盖半径" prop="radius">
-           <el-input v-model="ruleForm.radius"></el-input>
-         </el-form-item>
-         <el-form-item label="覆盖角度" prop="angle">
-           <el-input v-model="ruleForm.angle"></el-input>
-         </el-form-item>
+        <div class="sub_title_css">
+          小区参数
+        </div>
+        <el-form-item label="小区名称" prop="name">
+          <el-input v-model="ruleForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="覆盖半径" prop="radius">
+          <el-input v-model="ruleForm.radius"></el-input>
+        </el-form-item>
+        <el-form-item label="覆盖角度" prop="angle">
+          <el-input v-model="ruleForm.angle"></el-input>
+        </el-form-item>
 
-         <div class="sub_title_css">
-           多线程参数
-         </div>
-         <el-form-item label="线程个数" prop="threadNum">
-           <el-input v-model="ruleForm.threadNum"></el-input>
-         </el-form-item>
+        <div class="sub_title_css">
+          多线程参数
+        </div>
+        <el-form-item label="线程个数" prop="threadNum">
+          <el-input v-model="ruleForm.threadNum"></el-input>
+        </el-form-item>
 
-         <div class="sub_title_css">
-           射线跟踪控制参数
-         </div>
-         <el-form-item label="反射次数" prop="reflectionNum">
-           <el-input v-model="ruleForm.reflectionNum"></el-input>
-         </el-form-item>
-         <el-form-item label="绕射次数" prop="diffractionNum">
-           <el-input v-model="ruleForm.diffractionNum"></el-input>
-         </el-form-item>
-         <el-form-item label="建筑物棱边绕射点间隔" prop="buildingInterval">
-           <el-input v-model="ruleForm.buildingInterval"></el-input>
-         </el-form-item>
-         <el-checkbox v-model="ruleForm.computeIndoor">计算立体覆盖</el-checkbox>
-         <el-checkbox v-model="ruleForm.computeDiffrac">计算绕射</el-checkbox>
+        <div class="sub_title_css">
+          射线跟踪控制参数
+        </div>
+        <el-form-item label="反射次数" prop="reflectionNum">
+          <el-input v-model="ruleForm.reflectionNum"></el-input>
+        </el-form-item>
+        <el-form-item label="绕射次数" prop="diffractionNum">
+          <el-input v-model="ruleForm.diffractionNum"></el-input>
+        </el-form-item>
+        <el-form-item label="建筑物棱边绕射点间隔" prop="buildingInterval">
+          <el-input v-model="ruleForm.buildingInterval"></el-input>
+        </el-form-item>
+        <el-checkbox v-model="ruleForm.computeIndoor">计算立体覆盖</el-checkbox>
+        <el-checkbox v-model="ruleForm.computeDiffrac">计算绕射</el-checkbox>
 
-         <div class="sub_title_css">
-           校正系数
-         </div>
-         <el-form-item label="直射校正系数" prop="directCoefficient">
-           <el-input v-model="ruleForm.directCoefficient"></el-input>
-         </el-form-item>
-         <el-form-item label="反射校正系数" prop="reflectCoefficient">
-           <el-input v-model="ruleForm.reflectCoefficient"></el-input>
-         </el-form-item>
-         <el-form-item label="绕射校正系数" prop="diffractionCoefficient">
-           <el-input v-model="ruleForm.diffractionCoefficient"></el-input>
-         </el-form-item>
-         <el-form-item label="菲涅尔绕射校正系数" prop="fresnelCoefficient">
-           <el-input v-model="ruleForm.fresnelCoefficient"></el-input>
-         </el-form-item>
+        <div class="sub_title_css">
+          校正系数
+        </div>
+        <el-form-item label="直射校正系数" prop="directCoefficient">
+          <el-input v-model="ruleForm.directCoefficient"></el-input>
+        </el-form-item>
+        <el-form-item label="反射校正系数" prop="reflectCoefficient">
+          <el-input v-model="ruleForm.reflectCoefficient"></el-input>
+        </el-form-item>
+        <el-form-item label="绕射校正系数" prop="diffractionCoefficient">
+          <el-input v-model="ruleForm.diffractionCoefficient"></el-input>
+        </el-form-item>
+        <el-form-item label="菲涅尔绕射校正系数" prop="fresnelCoefficient">
+          <el-input v-model="ruleForm.fresnelCoefficient"></el-input>
+        </el-form-item>
 
-         <div class="sub_title_css">
-           手动指定范围(可选)
-         </div>
-           <el-form-item label="from">
-             <el-input v-model="ruleForm.fromAngle"></el-input>
-           </el-form-item>
-           <el-form-item label="to">
-             <el-input v-model="ruleForm.toAngle"></el-input>
-           </el-form-item>
+        <div class="sub_css">
+          <el-form-item>
+            <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
+            <el-button @click="resetForm('ruleForm')">重置</el-button>
+          </el-form-item>
+        </div>
 
-         <div class="sub_title_css">
-           大区域分批计算(可选)
-         </div>
-         <el-form-item label="总批数" prop="batchNum">
-           <el-input v-model="ruleForm.batchNum"></el-input>
-         </el-form-item>
-         <el-form-item label="当前是第" prop="currBatch">
-           <el-input v-model="ruleForm.currBatch"></el-input>
-         </el-form-item>
-         <el-checkbox v-model="ruleForm.reRay">分批计算后，二次投射</el-checkbox>
-         <el-checkbox v-model="ruleForm.mergePwr">分批计算后，栅格场强合并</el-checkbox>
-
-         <div class="sub_css">
-           <el-form-item>
-             <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
-             <el-button @click="resetForm('ruleForm')">重置</el-button>
-           </el-form-item>
-         </div>
-
-       </el-form>
+      </el-form>
     </div>
   </div>
 </template>
 <script>
 export default {
-  name: 'CellRayTracing',
+  name: 'RayRecord',
   data () {
     return {
       ruleForm: {
@@ -110,12 +88,6 @@ export default {
         checked: true,
         computeIndoor: true,
         computeDiffrac: true,
-        fromAngle: '0',
-        toAngle: '130',
-        batchNum: '2',
-        currBatch: '1',
-        reRay: false,
-        mergePwr: false
       },
       rules: {
         name: [
@@ -179,11 +151,11 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$http.post('api/CellRayTracing/PostRayTracing', this.ruleForm)
+          this.$http.post('api/RayRecord/PostRayRecord', this.ruleForm)
             .then(response => {
               if (response.ok) {
                 this.$message({
-                  message: '小区覆盖计算结束！',
+                  message: '射线记录完成！',
                   type: 'success' + response.msg
                 })
                 this.$router.push({
@@ -191,7 +163,7 @@ export default {
                 })
               } else {
                 this.$message({
-                  message: '小区覆盖计算失！',
+                  message: '射线记录失败！',
                   type: 'fail' + response.msg
                 })
               }

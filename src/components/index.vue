@@ -18,24 +18,24 @@
         </el-submenu>
         <el-submenu index="5">
           <template slot="title"><div class="el-icon-menu"></div>场景建模</template>
-          <el-menu-item index="5-1">网格划分</el-menu-item>
+          <el-menu-item index="/index/GridDivision">网格划分</el-menu-item>
           <el-menu-item index="5-2">建筑物底边平滑</el-menu-item>
           <el-menu-item index="5-2">小区理论覆盖半径计算</el-menu-item>
           <el-menu-item index="5-2">场景划分</el-menu-item>
         </el-submenu>
         <el-menu-item index="/index/CellRayTracing"><div class="el-icon-menu"></div>小区覆盖计算</el-menu-item>
-        <el-menu-item index="7"><div class="el-icon-menu"></div>网内干扰分析</el-menu-item>
+        <el-menu-item index="/index/InternalInterferenceAnalysis"><div class="el-icon-menu"></div>网内干扰分析</el-menu-item>
         <el-submenu index="8">
           <template slot="title"><div class="el-icon-menu"></div>网外干扰源定位</template>
-          <el-menu-item index="8-1">网外源干扰定位1</el-menu-item>
+          <el-menu-item index="/index/ExtraInterferenceLoc">网外源干扰定位</el-menu-item>
           <el-menu-item index="8-2">网外源干扰定位2</el-menu-item>
-          <el-menu-item index="8-3">网外干扰定位射线记录</el-menu-item>
+          <el-menu-item index="/index/InterferenceRayRecord">网外干扰定位射线记录</el-menu-item>
           <el-menu-item index="8-4">路测管理</el-menu-item>
         </el-submenu>
         <el-submenu index="9">
           <template slot="title"><div class="el-icon-menu"></div>系数校正</template>
-          <el-menu-item index="9-1">系数校正射线记录</el-menu-item>
-          <el-menu-item index="9-2">系数校正</el-menu-item>
+          <el-menu-item index="/index/RayRecord">系数校正射线记录</el-menu-item>
+          <el-menu-item index="/index/CoefficientCorrection">系数校正</el-menu-item>
         </el-submenu>
         <el-submenu index="10">
           <template slot="title"><div class="el-icon-menu"></div>图层刷新</template>
@@ -65,25 +65,25 @@
   </div>
 </template>
 <script type="text/ecmascript-6">
-  import planeMap from "./map_show/planeMap";
-  export default {
-    name:'index',
-    components: {planeMap},
-    data(){
-      return {
-        searchCriteria: '',
-        showMap:true,
-      }
-    },
-    mounted(){
-      //防止直接访问地址导致显隐出错
-      this.showMap = !(this.$route.path !== "/" && this.$route.path !== "/index");
-    },
-    methods:{
-      handleSelect(key, keyPath){
-        //选中非首页时地图组件隐藏
-        this.showMap = !(key !== "/" && key !== "/index");
-        /*switch(key){
+import planeMap from './map_show/planeMap'
+export default {
+  name: 'index',
+  components: {planeMap},
+  data () {
+    return {
+      searchCriteria: '',
+      showMap: true
+    }
+  },
+  mounted () {
+    // 防止直接访问地址导致显隐出错
+    this.showMap = !(this.$route.path !== '/' && this.$route.path !== '/index')
+  },
+  methods: {
+    handleSelect (key, keyPath) {
+      // 选中非首页时地图组件隐藏
+      this.showMap = !(key !== '/' && key !== '/index')
+      /* switch(key){
           case '1-1':
             this.$router.push('/Page1');
             this.breadcrumbItems  = ['导航一']
@@ -100,14 +100,12 @@
             this.$router.push('/cov_analysis/2d_map_show')
             this.breadcrumbItems  = ['覆盖分析平面显示']
             break;
-        }*/
-      },
+        } */
+    }
 
-    },
   }
+}
 </script>
-
-
 
 <style scoped>
 
