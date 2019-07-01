@@ -1,21 +1,5 @@
-/**
- * ajax请求配置
- */
 import axios from 'axios'
-import apiURL from './api.js'
-//import Qs from 'qs'
-
-import cookie from '../../static/js/cookie.js'
-
-// axios默认配置
-axios.defaults.timeout = 10000;   // 超时时间
-axios.defaults.baseURL = apiURL;  // 默认地址
-
-//整理数据
-// axios.defaults.transformRequest = function (data) {
-//   data = JSON.stringify(data);
-//   return data;
-// };
+import {Message} from 'element-ui'
 
 axios.defaults.transformRequest = [
   function(data) {
@@ -23,42 +7,48 @@ axios.defaults.transformRequest = [
   }
 ];
 
-// 路由请求拦截
-// http request 拦截器
-axios.interceptors.request.use(
-  config => {
-    //config.data = JSON.stringify(config.data);
-    config.headers['Content-Type'] = 'application/json;charset=UTF-8';
-    //判断是否存在ticket，如果存在的话，则每个http header都加上ticket
-    if (cookie.get("token")) {
-      //用户每次操作，都将cookie设置成2小时
-      cookie.set("token",cookie.get("token") ,1/12)
-      cookie.set("name",cookie.get("name") ,1/12)
-      config.headers.token = cookie.get("token");
-      config.headers.name= cookie.get("name");
+axios.interceptors.request.use(config => {
+  config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+  return config;
+}, err => {
+  Message.error({message: '请求超时!'});
+  // return Promise.resolve(err);
+})
+axios.interceptors.response.use(data => {
+  if(data.status && data.status === 200){
+    if(data.data.ok === false){
+      Message.error({message: data.data.msg});
+      return;
     }
-
-    return config;
-  },
-  error => {
-    return Promise.reject(error.response);
-  });
-
-// 路由响应拦截
-// http response 拦截器
-axios.interceptors.response.use(
-  response => {
-    if (response.data.resultCode=="404") {
-      console.log("response.data.resultCode是404")
-      // 返回 错误代码-1 清除ticket信息并跳转到登录页面
-//      cookie.del("ticket")
-//      window.location.href='http://login.com'
-      return
+    if(data.data.code === 2){
+      //code为2时表示token失效
+      Message.error({message: data.data.msg});
+      window.location.href="/login"
+    }
+    if (data.data.code === 1) {
+      //code为1时表示请求成功
+      Message.success({message: data.data.msg});
+    }
+  }
+  // if (data.status && data.status === 200 && data.data.ok === false) {
+  //   Message.error({message: data.data.msg});
+  //   return;
+  // }
+  return data;
+}, err => {
+  if (err.response.status === 504 || err.response.status === 404) {
+    Message.error({message: '服务器被吃了⊙﹏⊙∥'});
+  } else if (err.response.status === 403) {
+    Message.error({message: '权限不足,请联系管理员!  0.0'});
+  } else if (err.response.status === 401) {
+    Message.error({message: err.response.data.msg});
+  } else {
+    if (err.response.data.msg) {
+      Message.error({message: err.response.data.msg});
     }else{
-      return response;
+      Message.error({message: '未知错误!  0.0'});
     }
-  },
-  error => {
-    return Promise.reject(error.response)   // 返回接口返回的错误信息
-  });
-export default axios;
+  }
+  // return err
+  // return Promise.resolve(err);
+})

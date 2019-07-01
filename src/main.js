@@ -5,57 +5,50 @@ import App from './App'
 import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import axios from 'axios';
 // import '@/tool/map_load_tool.js'
-import esriLoader from 'esri-loader'
+import './httpConfig/http.js'
+import store from './store/store'
+import {initMenu} from './httpConfig/utils';
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 
-const axiosInstance = axios.create({
-  headers:{'Content-Type':'application/json;charset=utf-8'},
-  withCredentials:true,
-});
-Vue.prototype.$http = axiosInstance;
+// Vue.prototype.getRequest = getRequest;
+// Vue.prototype.postRequest = postRequest;
+// Vue.prototype.deleteRequest = deleteRequest;
+// Vue.prototype.putRequest = putRequest;
+// Vue.prototype.isNotNullORBlank = isNotNullORBlank;
+
+router.beforeEach((to, from, next)=> {
+    if (to.name === 'login') {
+      next();
+      return;
+    }
+    let name = store.state.user.name;
+    if (name === 'not logged') {
+      if (to.meta.requireAuth || to.name == null) {
+        //被拦截时，将其原本想请求的地址写在redirect中，传给拦截的route（这里就是"/"即login），然后在login成功后
+        // 它可以直接通过获取redirect中的数据，跳转到他之前想跳转的地址
+        next({path: '/', query: {redirect: to.path}})
+      } else {
+        next();
+      }
+    } else {
+      // initMenu(router, store);
+      // if(to.path=='/chat')
+      //   store.commit("updateMsgList", []);
+      next();
+    }
+  }
+)
+
+
+
 /* eslint-disable no-new */
 new Vue({
-/*  created () {
-    const options = {
-      // 可以使用自定义资源加载,arcgis 官网加载太慢了,经常加载失败
-      // url: 'https://js.arcgis.com/4.11/'
-      url: 'http://localhost/arcgis_js_api/library/4.11/init.js'
-    };
-    let modules =  [
-      "esri/Map",
-      "esri/WebMap",
-      'esri/views/MapView',
-      "esri/layers/FeatureLayer",
-      "esri/layers/MapImageLayer",
-      "esri/tasks/QueryTask",
-      "esri/tasks/support/Query",
-      "esri/symbols/SimpleFillSymbol",
-      "esri/symbols/SimpleLineSymbol",
-      "esri/Color",
-      "esri/layers/TileLayer",
-      "esri/widgets/Zoom",
-      "esri/widgets/Compass",
-      "esri/widgets/Search",
-      "esri/widgets/Legend"
-      // "esri/InfoTemplate"
-    ];
-    esriLoader.loadModules(modules, options).then((
-      [map,web_map,mapview, FeatureLayer,MapImageLayer, QueryTask, Query, SimpleFillSymbol,SimpleLineSymbol, color,
-        TileLayer, Zoom, Compass, Search, Legend]
-    ) => {
-      Vue.prototype.$map_apis = {
-        map,web_map,mapview, FeatureLayer,MapImageLayer, QueryTask, Query, SimpleFillSymbol,SimpleLineSymbol, color,
-        TileLayer, Zoom, Compass, Search, Legend
-      };
-      console.log(this.$map_apis)
-    }).catch(error => {console.log('加载api错误', error)});
-  },*/
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 });

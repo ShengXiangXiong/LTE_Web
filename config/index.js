@@ -15,7 +15,7 @@ module.exports = {
       将api的请求转发到业务服务器上
        */
       '/api':{
-        target:'http://localhost:3298',
+        target:'http://localhost:10001',
         // secure: false, // 如果是https接口，需要配置这个参数
         changeOrigin:true,
         pathReWrite:{

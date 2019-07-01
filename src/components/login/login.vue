@@ -1,22 +1,22 @@
 <template>
   <div class="login-container">
-    <el-form :model="ruleForm2" :rules="rules2"
+    <el-form :model="user" :rules="rules2"
              status-icon
-             ref="ruleForm2"
+             ref="user"
              label-position="left"
              label-width="0px"
              class="demo-ruleForm login-page">
       <h3 class="title">系统登录</h3>
       <el-form-item prop="username">
         <el-input type="text"
-                  v-model="ruleForm2.username"
+                  v-model="user.userName"
                   auto-complete="off"
                   placeholder="用户名"
         ></el-input>
       </el-form-item>
       <el-form-item prop="password">
         <el-input type="password"
-                  v-model="ruleForm2.password"
+                  v-model="user.userPwd"
                   auto-complete="off"
                   placeholder="密码"
         ></el-input>
@@ -33,68 +33,63 @@
 </template>
 
 <script>
-  import axios from 'axios';
-  // axios.defaults.baseURL='/api';
-  const axiosInstance = axios.create({
-    headers:{'Content-Type':'application/json;charset=utf-8'},
-    withCredentials:true,
-  });
+  import { userLogin } from '@/httpConfig/api'
+  import {Message} from 'element-ui'
+
   export default {
     data(){
       return {
         logining: false,
-        ruleForm2: {
-          username: '',
-          password: '',
+        user: {
+          userName: '',
+          userPwd: '',
         },
         rules2: {
-          username: [{required: true, message: 'please enter your account', trigger: 'blur'}],
-          password: [{required: true, message: 'enter your password', trigger: 'blur'}]
+          userName: [{required: true, message: 'please enter your account', trigger: 'blur'}],
+          userPwd: [{required: true, message: 'enter your password', trigger: 'blur'}]
         },
         checked: false
       }
     },
+    mounted() {
+    },
     methods: {
-      handleSubmit(event){
-        this.$refs.ruleForm2.validate((valid) => {
+      handleSubmit (event) {
+        this.$refs.user.validate((valid) => {
           if(valid){
-            this.logining = true;
-            var user={
-              userName:this.ruleForm2.username,
-              passWord:this.ruleForm2.password
-            };
-            axiosInstance.post('api/Login/PostLogin',user)
-              .then( response=>{
-                // !judgeResponseEmpty(response)
-                if(response.data===true){
-                  console.log(response.data);
-                  this.$message({
-                    message:"login successful",
-                    type:'success'
-                  });
-                  this.$router.push({
-                    path:'/index'
-                  });
-                }else {
-                  this.$message({
-                    message:"用户名或密码错误",
-                    type:'error'
-                  });
-                }
-              })
-              .catch( error=>{
-                this.$message({
-                  message:"请求失败",
-                  type:'error'
-                });
-              });
-            this.logining=false;
+            this.login()
           }else{
             this.logining = false;
             console.log('error submit!');
             return false;
           }
         })
+      },
+      async login () {
+        this.logining = true;
+        let resp = null;
+        let errInfo = null;
+        resp = await userLogin(this.user).catch(err => {errInfo = err;});
+        if(resp && resp.data.ok===true){
+          let data = resp.data;
+          console.log(data)
+          this.$store.commit('login', data.obj);
+          let path = _this.$route.query.redirect;
+          //replace也是用于页面跳转，只是不将当前路径记录到history中（登录页面），当点击后退时，返回上上一个页面，所以这在登录页面时常用
+          this.$router
+            .replace({path: path === '/' || path === undefined ? '/home' : path});
+        }
+/*        if (!res) {
+          Message.error("请求失败"+errInfo)
+        }else {
+          console.log(res.data);
+          if(res.data.ok===true){
+            Message.success("登陆成功"+res);
+          }else{
+            Message.error("用户名或密码错误，请重试")
+          }
+        }*/
+        this.logining = false;
       }
     }
   };

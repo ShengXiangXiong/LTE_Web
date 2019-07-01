@@ -190,7 +190,7 @@
                   })
                 }else{
                   this.$message({
-                    message:"小区覆盖计算失！",
+                    message:"小区覆盖计算失败！",
                     type:'fail'+response.msg
                   });
                 }

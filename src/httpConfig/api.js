@@ -1,10 +1,10 @@
-import axios from 'axios'
-const apiUrl = 'http://3298';//测试域名，自己改成自己的
-// const apiUrl = 'http://xxoo';//线上域名，自己改成自己的
-const get = (params) => {axios.get('http://localhost:6080/arcgis/rest/services/GSM/MapServer', {params})}
-const post = (params) => {axios.post('', params)}
+/**
+ * 统一http请求地址
+ */
 
-export default {
-  get,
-  post
-}
+// import service from 'http'
+import axios from 'axios'
+export const userLogin = (params) => axios.post("api/Login/PostLogin", params)
+// export const coverageCompute =  (params) =>{axios.post("api/CellRayTracing/PostRayTracing",params)};
+export const coverageCompute = (params) => axios.post('api/CellRayTracing/PostRayTracing', params);
+

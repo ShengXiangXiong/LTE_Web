@@ -1,9 +1,9 @@
 <template>
-<div>
   <div>
-    <div id="viewDiv"></div>
+    <div>
+      <div id="viewDiv"></div>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -53,10 +53,56 @@
 
         let mapUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer";
         let gsmLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/1";
-        let buildingLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/2";
+        let buildingLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/5";
+
         this.map = new apis.map();
+        let grassRenderer = {
+          type: "simple", // autocasts as new SimpleRenderer()
+          symbol: {
+            type: "simple-line", // autocasts as new SimpleLineSymbol()
+            style: "none",
+            width: 0.7,
+            color: "green"
+          },
+          label: "grass"
+        };
+
         this.mapImage = new apis.MapImageLayer({
-          url:mapUrl
+          url:mapUrl,
+          sublayers: [
+            {
+              id:5
+            },
+            {
+              id:4
+            },
+            {
+              id:3
+            },
+            {
+              id:2
+            },
+            {
+              id:1
+            },
+            {
+              id:0
+            },
+            {
+              renderer: {
+                type: "simple"  // autocasts as new ClassBreaksRenderer()
+              },
+              source: {
+                type: "data-layer",
+                dataSource: {
+                  type: "table",
+                  workspaceId: "MyShapefileWorkspaceID",
+                  dataSourceName: "grass15.shp"
+                }
+              }
+            },
+
+          ]
         });
 
         // let buildingLayer = new apis.FeatureLayer({
@@ -217,20 +263,20 @@
       },
       clickHandler (evt) {
         console.log(this.mapView.graphics)
-          if(this.graphic == null && this.mapView.graphics.length === 0) {
-            console.log('data is not received')
-          }else{
-            if(evt.button===2){
-              //右键显示功能选项框
-              this.graphic.popupTemplate = this.functionPopupTemplate;
-              console.log("br")
-            }
-            else if(evt.button===0){
-              //左键将查询到的graphic绑定定义好的template
-              this.graphic.popupTemplate = this.buildingPopupTemplate;
-              console.log("bl")
-            }
+        if(this.graphic == null && this.mapView.graphics.length === 0) {
+          console.log('data is not received')
+        }else{
+          if(evt.button===2){
+            //右键显示功能选项框
+            this.graphic.popupTemplate = this.functionPopupTemplate;
+            console.log("br")
           }
+          else if(evt.button===0){
+            //左键将查询到的graphic绑定定义好的template
+            this.graphic.popupTemplate = this.buildingPopupTemplate;
+            console.log("bl")
+          }
+        }
       },
 
       add_circle(center,radius,color,attr,layer){
@@ -300,12 +346,12 @@
 
 <style scoped>
   @import url('http://localhost/arcgis_js_api/library/4.11/esri/css/main.css');
-  /*@import url("https://js.arcgis.com/4.11/esri/css/main.css");*/
   /*@import url("//static/arcgis_js_api/library/4.11/esri/css/main.css");*/
   #viewDiv {
     margin: 0px auto;
     border: 0px solid #000;
-    width: 1300px;
+    width: 100%;
     height: 700px;
+    padding-top: 15px;
   }
 </style>
