@@ -2,7 +2,7 @@ import esriLoader from 'esri-loader'
 const options = {
   // 可以使用自定义资源加载,arcgis 官网加载太慢了,经常加载失败
   // url: 'https://js.arcgis.com/4.11/'
-  url: 'http://localhost/arcgis_js_api/library/4.11/init.js'
+  url: '/static/arcgis_js_api/library/4.11/init.js'
 };
 let modules =  [
   "esri/Map",

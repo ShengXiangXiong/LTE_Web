@@ -49,14 +49,15 @@
     methods: {
       async loadMap() {
         let apis = await load_esri();
+        esriLoader.loadCss("/static/arcgis_js_api/library/4.11/esri/css/main.css");
         this.apis = apis;
 
         let mapUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer";
-        let gsmLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/1";
-        let buildingLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/5";
+        let gsmLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/3";
+        let buildingLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/2";
 
         this.map = new apis.map();
-        let grassRenderer = {
+        /*let grassRenderer = {
           type: "simple", // autocasts as new SimpleRenderer()
           symbol: {
             type: "simple-line", // autocasts as new SimpleLineSymbol()
@@ -65,45 +66,9 @@
             color: "green"
           },
           label: "grass"
-        };
+        };*/
 
-        this.mapImage = new apis.MapImageLayer({
-          url:mapUrl,
-          sublayers: [
-            {
-              id:5
-            },
-            {
-              id:4
-            },
-            {
-              id:3
-            },
-            {
-              id:2
-            },
-            {
-              id:1
-            },
-            {
-              id:0
-            },
-            {
-              renderer: {
-                type: "simple"  // autocasts as new ClassBreaksRenderer()
-              },
-              source: {
-                type: "data-layer",
-                dataSource: {
-                  type: "table",
-                  workspaceId: "MyShapefileWorkspaceID",
-                  dataSourceName: "grass15.shp"
-                }
-              }
-            },
-
-          ]
-        });
+        this.mapImage = new apis.MapImageLayer({url:mapUrl});
 
         // let buildingLayer = new apis.FeatureLayer({
         //   url:buildingLayerUrl
@@ -112,7 +77,7 @@
         //   url:gsmLayerUrl
         // })
 
-        // this.map.addMany([buildingLayer,buildingLayer,this.mapImage]);
+        // this.map.addMany([buildingLayer,gsmLayer]);
         this.map.add(this.mapImage)
 
         this.mapView = new apis.mapview ({
@@ -127,15 +92,11 @@
         let zoomWidget = new apis.Zoom({view: this.mapView});
         this.mapView.ui.add(searchWidget,"top-right");
         this.mapView.ui.add(zoomWidget,"top-left");
-
         //创建查询对象
         this.query = new this.apis.Query();
         this.query.outFields = ["*"];//返回所有查询的属性
         this.query.returnGeometry = true;
         this.queryTask = new this.apis.QueryTask(buildingLayerUrl);
-
-
-        // console.log(this.mapImage)
 
         //给地图绑定点击监听事件
         // let buildingFeatureLayer = new this.apis.FeatureLayer({
@@ -163,8 +124,10 @@
               visible:true,
             },{
               fieldName:"Longitude",
+              visible:true,
             },{
               fieldName:"Latitude",
+              visible:true,
             }]
           }]
           // fieldInfos:["*"],
@@ -201,6 +164,7 @@
           graphic.attributes["Longitude"] = lon;
           graphic.attributes["Latitude"] = lat;
           this.buildInfo = graphic.attributes;
+          console.log(graphic)
           graphic.symbol = {
             type: "simple-line",
             color: [226, 119, 40],
@@ -225,7 +189,6 @@
         this.query.geometry = point;//获取地图点击的点，得到geometry区域
         let lat = point.latitude;
         let lon = point.longitude;
-
         this.query.outSpatialReference = this.mapView.spatialReference;
         this.queryTask.execute(this.query).then((res)=>{
           if(res.features!==0){
@@ -345,13 +308,13 @@
 </script>
 
 <style scoped>
-  @import url('http://localhost/arcgis_js_api/library/4.11/esri/css/main.css');
-  /*@import url("//static/arcgis_js_api/library/4.11/esri/css/main.css");*/
+  /*@import url('http://localhost/arcgis_js_api/library/4.11/esri/css/main.css');*/
+  /*@import "/static/arcgis_js_api/library/4.11/esri/css/main.css";*/
   #viewDiv {
     margin: 0px auto;
     border: 0px solid #000;
     width: 100%;
-    height: 700px;
+    height: 1000px;
     padding-top: 15px;
   }
 </style>

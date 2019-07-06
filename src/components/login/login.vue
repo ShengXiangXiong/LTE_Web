@@ -74,10 +74,10 @@
           let data = resp.data;
           console.log(data)
           this.$store.commit('login', data.obj);
-          let path = _this.$route.query.redirect;
+          let path = this.$route.query.redirect;
           //replace也是用于页面跳转，只是不将当前路径记录到history中（登录页面），当点击后退时，返回上上一个页面，所以这在登录页面时常用
           this.$router
-            .replace({path: path === '/' || path === undefined ? '/home' : path});
+            .replace({path: path === '/' || path === undefined ? '/index' : path});
         }
 /*        if (!res) {
           Message.error("请求失败"+errInfo)

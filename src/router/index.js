@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import login from "../components/login/login";
 import project_show from "../components/project_manage/project_show";
 import index from "../components/index"
-import planeMap from "../components/map_show/planeMap"
 import CellRayTracing from "../components/coverageCompute/CellRayTracing";
 
 Vue.use(Router)
@@ -12,8 +11,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'login',
-      component: login
+      name: 'index',
+      component: index
     },
     {
       path: '/login',
