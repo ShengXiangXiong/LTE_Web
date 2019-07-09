@@ -9,14 +9,14 @@
         <div class="sub_title_css">
           小区参数
         </div>
-        <el-form-item label="小区名称" prop="name">
-          <el-input v-model="ruleForm.name"></el-input>
+        <el-form-item label="小区名称" prop="cellName">
+          <el-input v-model="ruleForm.cellName"></el-input>
         </el-form-item>
-        <el-form-item label="覆盖半径" prop="radius">
-          <el-input v-model="ruleForm.radius"></el-input>
+        <el-form-item label="覆盖半径" prop="distance">
+          <el-input v-model="ruleForm.distance"></el-input>
         </el-form-item>
-        <el-form-item label="覆盖角度" prop="angle">
-          <el-input v-model="ruleForm.angle"></el-input>
+        <el-form-item label="覆盖角度" prop="incrementAngle">
+          <el-input v-model="ruleForm.incrementAngle"></el-input>
         </el-form-item>
 
         <div class="sub_title_css">
@@ -35,8 +35,8 @@
         <el-form-item label="绕射次数" prop="diffractionNum">
           <el-input v-model="ruleForm.diffractionNum"></el-input>
         </el-form-item>
-        <el-form-item label="建筑物棱边绕射点间隔" prop="buildingInterval">
-          <el-input v-model="ruleForm.buildingInterval"></el-input>
+        <el-form-item label="建筑物棱边绕射点间隔" prop="diffPointsMargin">
+          <el-input v-model="ruleForm.diffPointsMargin"></el-input>
         </el-form-item>
         <el-checkbox v-model="ruleForm.computeIndoor">计算立体覆盖</el-checkbox>
         <el-checkbox v-model="ruleForm.computeDiffrac">计算绕射</el-checkbox>
@@ -44,17 +44,17 @@
         <div class="sub_title_css">
           校正系数
         </div>
-        <el-form-item label="直射校正系数" prop="directCoefficient">
-          <el-input v-model="ruleForm.directCoefficient"></el-input>
+        <el-form-item label="直射校正系数" prop="directCoeff">
+          <el-input v-model="ruleForm.directCoeff"></el-input>
         </el-form-item>
-        <el-form-item label="反射校正系数" prop="reflectCoefficient">
-          <el-input v-model="ruleForm.reflectCoefficient"></el-input>
+        <el-form-item label="反射校正系数" prop="reflectCoeff">
+          <el-input v-model="ruleForm.reflectCoeff"></el-input>
         </el-form-item>
-        <el-form-item label="绕射校正系数" prop="diffractionCoefficient">
-          <el-input v-model="ruleForm.diffractionCoefficient"></el-input>
+        <el-form-item label="绕射校正系数" prop="diffractCoeff">
+          <el-input v-model="ruleForm.diffractCoeff"></el-input>
         </el-form-item>
-        <el-form-item label="菲涅尔绕射校正系数" prop="fresnelCoefficient">
-          <el-input v-model="ruleForm.fresnelCoefficient"></el-input>
+        <el-form-item label="菲涅尔绕射校正系数" prop="diffractCoeff2">
+          <el-input v-model="ruleForm.diffractCoeff2"></el-input>
         </el-form-item>
 
         <div class="sub_title_css">
@@ -100,17 +100,17 @@
     data () {
       return {
         ruleForm: {
-          name: 'DQVJTX2',
-          radius: '1000',
-          angle: '65',
+          cellName: 'DQVJTX2',
+          distance: '1000',
+          incrementAngle: '65',
           threadNum: '3',
           reflectionNum: '3',
           diffractionNum: '2',
-          buildingInterval: '3',
-          directCoefficient: '0.3',
-          reflectCoefficient: '1.0',
-          diffractionCoefficient: '1.0',
-          fresnelCoefficient: '1.0',
+          diffPointsMargin: '3',
+          directCoeff: '0.3',
+          reflectCoeff: '1.0',
+          diffractCoeff: '1.0',
+          diffractCoeff2: '1.0',
           sourceId: '1',
           sourceX: '668019',
           sourceY: '3546234',
@@ -119,7 +119,7 @@
           dirY: '3546234'
         },
         rules: {
-          name: [
+          cellName: [
             {required: true, message: '请输入小区名称', trigger: 'blur'}
           ],
           region: [
@@ -140,10 +140,10 @@
           desc: [
             {required: true, message: '请填写活动形式', trigger: 'blur'}
           ],
-          radius: [
+          distance: [
             {required: true, message: '请填写覆盖半径', trigger: 'blur'}
           ],
-          angle: [
+          incrementAngle: [
             {
               required: true,
               message: '说明：1.假设天线方位角θ=300°，覆盖角度δ=70°，则计算的覆盖范围为230°至10°（正北方向为0°）。\n' +
@@ -160,19 +160,19 @@
           diffractionNum: [
             {required: true, message: '请填写绕射次数', trigger: 'blur'}
           ],
-          buildingInterval: [
+          diffPointsMargin: [
             {required: true, message: '请填写建筑物棱边绕射点间隔', trigger: 'blur'}
           ],
-          directCoefficient: [
+          directCoeff: [
             {required: true, message: '请填写直射校正系数', trigger: 'blur'}
           ],
-          reflectCoefficient: [
+          reflectCoeff: [
             {required: true, message: '请填写反射校正系数', trigger: 'blur'}
           ],
-          diffractionCoefficient: [
+          diffractCoeff: [
             {required: true, message: '请填写绕射校正系数', trigger: 'blur'}
           ],
-          fresnelCoefficient: [
+          diffractCoeff2: [
             {required: true, message: '请填写菲涅尔绕射校正系数', trigger: 'blur'}
           ]
         }
@@ -182,31 +182,17 @@
       submitForm (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$http.post('api/InterferenceRayRecord/PostInterferenceRayRecord', this.ruleForm)
+            this.$http.post('api/RayRecord/PostRayRecordLoc"', this.ruleForm)
               .then(response => {
-                if (response.ok) {
-                  this.$message({
-                    message: '射线记录完成！',
-                    type: 'success' + response.msg
-                  })
+                if (response && response.data.ok) {
                   this.$router.push({
                     path: '/index'
                   })
-                } else {
-                  this.$message({
-                    message: '射线记录失败！',
-                    type: 'fail' + response.msg
-                  })
                 }
               })
-              .catch(error => {
-                this.$message({
-                  message: '请求失败！',
-                  type: 'error' + response.msg
-                })
-              })
+            this.$message.success({message: '任务提交成功!'})
           } else {
-            this.$message({
+            this.$message.error({
               message: 'submit fail'
             })
             return false

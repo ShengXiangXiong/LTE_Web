@@ -3,15 +3,16 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import ElementUI from 'element-ui'
+import ElementUI, {Message} from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 // import '@/tool/map_load_tool.js'
-import './httpConfig/http.js'
+import axios from './httpConfig/http.js'
 import store from './store/store'
-import {initMenu} from './httpConfig/utils';
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
+Vue.prototype.$http = axios
+Vue.prototype.$message = Message
 
 // Vue.prototype.getRequest = getRequest;
 // Vue.prototype.postRequest = postRequest;
@@ -41,7 +42,6 @@ router.beforeEach((to, from, next)=> {
     }
   }
 )
-
 
 
 /* eslint-disable no-new */

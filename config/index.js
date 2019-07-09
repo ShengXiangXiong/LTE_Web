@@ -16,6 +16,7 @@ module.exports = {
        */
       '/api':{
         target:'http://10.103.242.20:10001/',
+        // target:'http://localhost:3298/',
         // secure: false, // 如果是https接口，需要配置这个参数
         changeOrigin:true,
         pathReWrite:{

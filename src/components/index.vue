@@ -56,7 +56,7 @@
         </el-submenu>
       </el-menu>
     </div>
-    <div v-if="showMap">
+    <div v-show="showMap">
       <!--      组件缓存-->
       <keep-alive>
         <planeMap></planeMap>
@@ -76,17 +76,22 @@
     data () {
       return {
         searchCriteria: '',
-        showMap: true
+        showMap: true,
       }
+    },
+    watch: {
+      '$route': 'handleSelect'
     },
     mounted () {
       // 防止直接访问地址导致显隐出错
-      this.showMap = !(this.$route.path !== '/' && this.$route.path !== '/index')
+      this.showMap = this.$route.path === '/' || this.$route.path === '/index'
     },
     methods: {
-      handleSelect (key, keyPath) {
+      handleSelect () {
+        let path = this.$route.path
+
         // 选中非首页时地图组件隐藏
-        this.showMap = !(key !== '/' && key !== '/index')
+        this.showMap = !(path !== '/' && path !== '/index')
         /* switch(key){
             case '1-1':
               this.$router.push('/Page1');

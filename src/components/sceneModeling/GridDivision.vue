@@ -9,8 +9,8 @@
         <div class="sub_title_css">
           名称
         </div>
-        <el-form-item label="网格名称" prop="gridName">
-          <el-input v-model="ruleForm.gridName"></el-input>
+        <el-form-item label="网格名称" prop="name">
+          <el-input v-model="ruleForm.name"></el-input>
         </el-form-item>
 
         <div class="sub_title_css">
@@ -53,7 +53,7 @@
     data () {
       return {
         ruleForm: {
-          gridName: 'zsgrid30',
+          name: 'zsgrid30',
           minLongitude: '118.724060',
           minLatitude: '32.006110',
           maxLongitude: '118.806605',
@@ -61,7 +61,7 @@
           sideLength: '5'
         },
         rules: {
-          gridName: [
+          name: [
             {required: true, message: '请输入网格名称', trigger: 'blur'}
           ],
           minLongitude: [
@@ -86,31 +86,17 @@
       submitForm (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$http.post('api/GridDivision/PostGridDivision', this.ruleForm)
+            this.$http.post('/api/Grid/PostGrid', this.ruleForm)
               .then(response => {
-                if (response.ok) {
-                  this.$message({
-                    message: '网格划分完成！',
-                    type: 'success' + response.msg
-                  })
+                if (response && response.data.ok) {
                   this.$router.push({
                     path: '/index'
                   })
-                } else {
-                  this.$message({
-                    message: '网格划分失败！',
-                    type: 'fail' + response.msg
-                  })
                 }
               })
-              .catch(error => {
-                this.$message({
-                  message: '请求失败！',
-                  type: 'error' + response.msg
-                })
-              })
+            this.$message.success({message: '任务提交成功!'})
           } else {
-            this.$message({
+            this.$message.error({
               message: 'submit fail'
             })
             return false

@@ -9,9 +9,10 @@ axios.defaults.transformRequest = [
 
 axios.interceptors.request.use(config => {
   config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+  config.headers['auth'] = window.localStorage.getItem('token')
   return config;
 }, err => {
-  Message.error({message: '请求超时!'});
+  Message.error({message: '请求超时!' + err})
   // return Promise.resolve(err);
 })
 axios.interceptors.response.use(data => {
@@ -19,13 +20,17 @@ axios.interceptors.response.use(data => {
     if(data.data.ok === false){
       Message.error({message: data.data.msg});
       return;
-    }
-    if(data.data.code === 2){
+    } else if (data.data.code === 2) {
       //code为2时表示token失效
       Message.error({message: data.data.msg});
       window.location.href="/login"
     }
-    if (data.data.code === 1) {
+    //todo:后端返回的code逻辑并未与前端保持一致，只有login模块是修改后的，其它返回的结果并未包含code,等到后端返回的结果完全遵守约定时，才放开
+    /*if (data.data.code === 1) {
+      //code为1时表示请求成功
+      Message.success({message: data.data.msg});
+    }*/
+    else {
       //code为1时表示请求成功
       Message.success({message: data.data.msg});
     }
@@ -49,6 +54,6 @@ axios.interceptors.response.use(data => {
       Message.error({message: '未知错误!  0.0'});
     }
   }
-  // return err
-  // return Promise.resolve(err);
 })
+
+export default axios

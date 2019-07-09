@@ -33,8 +33,7 @@
 </template>
 
 <script>
-  import { userLogin } from '@/httpConfig/api'
-  import {Message} from 'element-ui'
+  import {userLogin} from '@/httpConfig/api'
 
   export default {
     data(){
@@ -72,8 +71,8 @@
         resp = await userLogin(this.user).catch(err => {errInfo = err;});
         if(resp && resp.data.ok===true){
           let data = resp.data;
-          console.log(data)
           this.$store.commit('login', data.obj);
+          window.localStorage.setItem('token', data.token)
           let path = this.$route.query.redirect;
           //replace也是用于页面跳转，只是不将当前路径记录到history中（登录页面），当点击后退时，返回上上一个页面，所以这在登录页面时常用
           this.$router

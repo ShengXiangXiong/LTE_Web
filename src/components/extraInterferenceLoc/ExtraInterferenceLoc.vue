@@ -69,31 +69,17 @@
       submitFormToCompress (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$http.post('api/ExtraInterferenceLoc/PostCompress', this.ruleForm)
+            this.$http.post('/api/InterferenceLocate/PostRules', this.ruleForm)
               .then(response => {
-                if (response.ok) {
-                  this.$message({
-                    message: '启发式规则压缩干扰源区域完成！',
-                    type: 'success' + response.msg
-                  })
+                if (response && response.data.ok) {
                   this.$router.push({
                     path: '/index'
                   })
-                } else {
-                  this.$message({
-                    message: '启发式规则压缩干扰源区域失败！',
-                    type: 'fail' + response.msg
-                  })
                 }
               })
-              .catch(error => {
-                this.$message({
-                  message: '请求失败！',
-                  type: 'error' + response.msg
-                })
-              })
+            this.$message.success({message: '任务提交成功!'})
           } else {
-            this.$message({
+            this.$message.error({
               message: 'submit fail'
             })
             return false
@@ -103,31 +89,17 @@
       submitFormToEstimate (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$http.post('api/ExtraInterferenceLoc/PostEstimate', this.ruleForm)
+            this.$http.post('api/InterferenceLocate/PostCandidate', this.ruleForm)
               .then(response => {
-                if (response.ok) {
-                  this.$message({
-                    message: '评估干扰源候选位置完成！',
-                    type: 'success' + response.msg
-                  })
+                if (response.data.ok) {
                   this.$router.push({
                     path: '/index'
                   })
-                } else {
-                  this.$message({
-                    message: '评估干扰源候选位置失败！',
-                    type: 'fail' + response.msg
-                  })
                 }
               })
-              .catch(error => {
-                this.$message({
-                  message: '请求失败！',
-                  type: 'error' + response.msg
-                })
-              })
+            this.$message.success({message: '任务提交成功!'})
           } else {
-            this.$message({
+            this.$message.error({
               message: 'submit fail'
             })
             return false

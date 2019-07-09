@@ -7,10 +7,9 @@
 </template>
 
 <script>
-  import Index from "../index";
-  import load_esri from "../../utils/map_load_tool"
+  import Index from '../index'
+  import load_esri from '../../utils/map_load_tool'
   import esriLoader from 'esri-loader'
-  import {getMap, post} from "@/httpConfig/api"
   // let map_apis = load_esri();
 
   export default {
@@ -76,7 +75,6 @@
         // let gsmLayer = new apis.FeatureLayer({
         //   url:gsmLayerUrl
         // })
-
         // this.map.addMany([buildingLayer,gsmLayer]);
         this.map.add(this.mapImage)
 
@@ -311,8 +309,8 @@
   /*@import url('http://localhost/arcgis_js_api/library/4.11/esri/css/main.css');*/
   /*@import "/static/arcgis_js_api/library/4.11/esri/css/main.css";*/
   #viewDiv {
-    margin: 0px auto;
-    border: 0px solid #000;
+    margin: 0 auto;
+    border: 0 solid #000;
     width: 100%;
     height: 1000px;
     padding-top: 15px;

@@ -153,31 +153,17 @@
       submitForm (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$http.post('api/RayRecord/PostRayRecord', this.ruleForm)
+            this.$http.post('api/RayRecord/PostRayRecordAdj', this.ruleForm)
               .then(response => {
-                if (response.ok) {
-                  this.$message({
-                    message: '射线记录完成！',
-                    type: 'success' + response.msg
-                  })
+                if (response && response.data.ok) {
                   this.$router.push({
                     path: '/index'
                   })
-                } else {
-                  this.$message({
-                    message: '射线记录失败！',
-                    type: 'fail' + response.msg
-                  })
                 }
               })
-              .catch(error => {
-                this.$message({
-                  message: '请求失败！',
-                  type: 'error' + response.msg
-                })
-              })
+            this.$message.success({message: '任务提交成功!'})
           } else {
-            this.$message({
+            this.$message.error({
               message: 'submit fail'
             })
             return false
