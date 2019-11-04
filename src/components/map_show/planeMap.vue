@@ -2,6 +2,14 @@
   <div>
     <div>
       <div id="viewDiv"></div>
+      <div class="esri-widget" id="optionsDiv">
+        <el-input type="text"
+                  v-model="gsmNameFind"
+                  auto-complete="off"
+                  placeholder="请输入基站名称"
+        ></el-input>
+        <button class="esri-widget" id="doBtn">查询</button>
+      </div>
     </div>
   </div>
 </template>
@@ -22,13 +30,15 @@
         buildInfo:null,
         map:null,
         query:null,
-        queryTask:null,
+        queryTaskForBuilding: null,
+        queryTaskForGSM: null,
         mapImage:null,
         mapView:null,
         buildingPopupTemplate:null,
         cellPopupTemplate:null,
         functionPopupTemplate:null,
-        graphic:null
+        graphic: null,
+        gsmNameFind: null
       }
     },
     mounted () {
@@ -51,31 +61,12 @@
         esriLoader.loadCss("/static/arcgis_js_api/library/4.11/esri/css/main.css");
         this.apis = apis;
 
-        let mapUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer";
-        let gsmLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/3";
-        let buildingLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/2";
+        let mapUrl = 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer'
+        let gsmLayerUrl = 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer/3'
+        let buildingLayerUrl = 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer/2'
 
         this.map = new apis.map();
-        /*let grassRenderer = {
-          type: "simple", // autocasts as new SimpleRenderer()
-          symbol: {
-            type: "simple-line", // autocasts as new SimpleLineSymbol()
-            style: "none",
-            width: 0.7,
-            color: "green"
-          },
-          label: "grass"
-        };*/
-
         this.mapImage = new apis.MapImageLayer({url:mapUrl});
-
-        // let buildingLayer = new apis.FeatureLayer({
-        //   url:buildingLayerUrl
-        // })
-        // let gsmLayer = new apis.FeatureLayer({
-        //   url:gsmLayerUrl
-        // })
-        // this.map.addMany([buildingLayer,gsmLayer]);
         this.map.add(this.mapImage)
 
         this.mapView = new apis.mapview ({
@@ -89,13 +80,14 @@
         let searchWidget = new apis.Search({view: this.mapView});
         let zoomWidget = new apis.Zoom({view: this.mapView});
         this.mapView.ui.add(searchWidget,"top-right");
-        this.mapView.ui.add(zoomWidget,"top-left");
+        // this.mapView.ui.add(zoomWidget,"top-left");
+        this.mapView.ui.add('optionsDiv', 'top-left')
         //创建查询对象
         this.query = new this.apis.Query();
         this.query.outFields = ["*"];//返回所有查询的属性
         this.query.returnGeometry = true;
-        this.queryTask = new this.apis.QueryTask(buildingLayerUrl);
-
+        this.queryTaskForBuilding = new this.apis.QueryTask(buildingLayerUrl)
+        this.queryTaskForGSM = new this.apis.QueryTask(gsmLayerUrl)
         //给地图绑定点击监听事件
         // let buildingFeatureLayer = new this.apis.FeatureLayer({
         //   url:buildingLayerUrl,
@@ -104,8 +96,8 @@
         // });
 
         // let viewListener = this.mapView.on("pointer-move",this.do_query);
-        let viewListener = this.mapView.on("pointer-move",this.eventHandler);
-        // this.mapView.on("click",this.clickHandler)
+        // let viewListener = this.mapView.on("pointer-move",this.eventHandler);
+        this.mapView.on('click', this.eventHandler)
 
         //building弹出窗体
         this.buildingPopupTemplate = {
@@ -121,21 +113,34 @@
               // label:"Bid",
               visible:true,
             },{
-              fieldName:"Longitude",
-              visible:true,
-            },{
-              fieldName:"Latitude",
+              fieldName: 'CellName',
               visible:true,
             }]
           }]
           // fieldInfos:["*"],
         }
         //功能项弹出窗体
-        let CellRayTracing = '<a href="http://www.w3school.com.cn">小区覆盖计算</a>'
+        let coverLayerAction = {
+          title: '查看覆盖图层',
+          id: 'findCoverLayer',
+        }
+        let task = '<a href="http://www.w3school.com.cn">小区覆盖计算</a>'
         this.functionPopupTemplate = {
           title:"The executing task for this selected building",
-          content:CellRayTracing
+          content: task,
+          actions: [coverLayerAction]
         }
+        let coverName = this.findLayer()
+        this.addLayer(coverName)
+        //绑定弹窗监听
+        this.mapView.popup.on('trigger-action', function (event) {
+          // Execute the measureThis() function if the measure-this action is clicked
+          if (event.action.id === 'findCoverLayer') {
+            let coverName = this.findLayer()
+            console.log(coverName)
+            this.addLayer(coverName)
+          }
+        })
 
         //todo 根据点击不同的layer，展现不同的popupTemplate
 
@@ -179,6 +184,67 @@
         })
       },
 
+      // Executes each time the button is clicked
+      doQuery () {
+        // Clear the results from a previous query
+        this.mapView.graphics.removeAll()
+        /*********************************************
+         *
+         * Set the where clause for the query. This can be any valid SQL expression.
+         * In this case the inputs from the three drop down menus are used to build
+         * the query. For example, if "Elevation", "is greater than", and "10,000 ft"
+         * are selected, then the following SQL where clause is built here:
+         *
+         * params.where = "ELEV_ft > 10000";
+         *
+         * ELEV_ft is the field name for Elevation and is assigned to the value of the
+         * select option in the HTML below. Other operators such as AND, OR, LIKE, etc
+         * may also be used here.
+         *
+         **********************************************/
+        params.where = 'CellName = ' + this.gsmNameFind
+        // executes the query and calls getResults() once the promise is resolved
+        // promiseRejected() is called if the promise is rejected
+        this.queryTaskForGSM
+          .execute(params)
+          .then(this.getResults)
+          .catch(this.promiseRejected)
+      },
+      // Called each time the promise is resolved
+      getResults (response) {
+        // Loop through each of the results and assign a symbol and PopupTemplate
+        // to each so they may be visualized on the map
+        var peakResults = response.features.map(function (feature) {
+          // Sets the symbol of each resulting feature to a cone with a
+          // fixed color and width. The height is based on the mountain's elevation
+          feature.symbol = {
+            type: 'simple-line',
+            color: [226, 119, 40],
+          }
+          feature.popupTemplate = this.functionPopupTemplate
+          return feature
+        })
+
+        this.mapView.graphics.add(peakResults)
+
+        // animate to the results after they are added to the map
+        view.goTo(peakResults).then(function () {
+          view.popup.open({
+            features: peakResults,
+            featureMenuOpen: true,
+            updateLocationEnabled: true
+          })
+        })
+      },
+      // Called each time the promise is rejected
+      promiseRejected (error) {
+        console.error('Promise rejected: ', error.message)
+      },
+
+      showGraphic () {
+        this.graphic = null
+      },
+
       eventHandler(evt){
         this.graphic = null;
         this.buildInfo = null;
@@ -188,7 +254,7 @@
         let lat = point.latitude;
         let lon = point.longitude;
         this.query.outSpatialReference = this.mapView.spatialReference;
-        this.queryTask.execute(this.query).then((res)=>{
+        this.queryTaskForBuilding.execute(this.query).then((res) => {
           if(res.features!==0){
             //解析attributes
             let featureArray = res.features;
@@ -300,7 +366,39 @@
         //   console.error("[ applyEdits ] FAILURE: ", error.code, error.name, error.message);
         //   console.log("error = ", error);
         // });
+      },
+
+      findLayer () {
+        return '小区8覆盖.shp'
+      },
+      addLayer (dataSourceName) {
+        let grassRenderer = {
+          type: 'simple', // autocasts as new SimpleRenderer()
+          symbol: {
+            type: 'simple-line', // autocasts as new SimpleLineSymbol()
+            style: 'none',
+            width: 0.7,
+            color: 'green'
+          },
+          label: 'grass'
+        }
+        let layer = new this.apis.MapImageLayer({
+          url: 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer',
+          sublayers: [{
+            renderer: grassRenderer,
+            source: {
+              type: 'data-layer',
+              dataSource: {
+                type: 'table',
+                workspaceId: '0',
+                dataSourceName: dataSourceName
+              }
+            }
+          }]
+        })
+        this.map.add(layer)
       }
+
     }
   };
 </script>
@@ -314,5 +412,12 @@
     width: 100%;
     height: 1000px;
     padding-top: 15px;
+  }
+
+  #optionsDiv {
+    background-color: dimgray;
+    color: white;
+    padding: 10px;
+    width: 200px;
   }
 </style>
