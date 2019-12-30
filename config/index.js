@@ -15,10 +15,11 @@ module.exports = {
       将api的请求转发到业务服务器上
        */
       '/api':{
-        target:'http://10.103.242.20:10001/',
+        target:'http://10.103.252.26:8001/',
         // target:'http://localhost:3298/',
         // secure: false, // 如果是https接口，需要配置这个参数
         changeOrigin:true,
+
         pathReWrite:{
           '^/api':'/api'
         }
@@ -27,7 +28,8 @@ module.exports = {
       将arcgis相关的请求转发到gis server服务器上
        */
       '/arcgis':{
-        target:'http://localhost:6080',
+        target:'http://10.103.252.26:80/',
+        // target:'http://localhost:6080/',
         secure: false, // 如果是https接口，需要配置这个参数
         changeOrigin:true,
         pathReWrite:{
@@ -42,6 +44,15 @@ module.exports = {
           '^/arcgis_js_api':'/arcgis_js_api'
         }
       },
+    },
+    '/DotNet':{
+      target:'http://10.103.252.26:80/',
+      // target:'http://localhost:6080/',
+      secure: false, // 如果是https接口，需要配置这个参数
+      changeOrigin:true,
+      pathReWrite:{
+        '^/DotNet':'/DotNet'
+      }
     },
 
     // Various Dev Server settings

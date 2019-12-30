@@ -1,39 +1,117 @@
 <template>
+  <el-row>
+
   <div>
     <div>
+
       <div id="viewDiv"></div>
+      <div class="esri-widget" id="optionsDiv">
+
+        <div id="line-button" class="esri-widget esri-widget--button esri-interactive" title="画线">
+          <span class="esri-icon-polyline"></span>
+        </div>
+        <div id="area-button" class="esri-widget esri-widget--button esri-interactive" title="画面">
+          <span class="esri-icon-polygon"></span>
+        </div>
+        <div id="point-button" class="esri-widget esri-widget--button esri-interactive" title="画点">
+          <span class="esri-icon-radio-checked"></span>
+        </div>
+        <div id="circle-button" class="esri-widget esri-widget--button esri-interactive" title="画圆">
+          <span class="esri-icon-radio-unchecked"></span>
+        </div>
+        <div id="rectangle-button" class="esri-widget esri-widget--button esri-interactive" title="画矩形">
+          <span class="esri-icon-checkbox-unchecked"></span>
+        </div>
+
+
+
+          <el-col>
+            <el-input type="text"
+              v-model="gsmNameFind"
+              auto-complete="off"
+              placeholder="请输入"
+          ></el-input>
+        </el-col>
+        <el-col> <el-button class="esri-widget" id="doBtn" @click="doQuery" icon="el-icon-search" type="primary" size="small">查询</el-button></el-col>
+
+        <el-dropdown @command="handleCommand">
+          <el-button type="primary" class="esri-widget">
+            覆盖图层显示<i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="showBuildingLayer">小区覆盖图层显示</el-dropdown-item>
+            <el-dropdown-item command="showAreaLayer">区域覆盖图层显示</el-dropdown-item>
+            <el-dropdown-item command="showNetInLayer">网内干扰图层显示</el-dropdown-item>
+            <el-dropdown-item command="showNetOutLayer">网外干扰图层显示</el-dropdown-item>
+            <el-dropdown-item command="showVirtualLayer">虚拟路测图层显示</el-dropdown-item>
+            <el-dropdown-item command="showLayer">图层显示</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
+      </div>
     </div>
+
   </div>
+  </el-row>
+
 </template>
 
 <script>
   import Index from '../index'
   import load_esri from '../../utils/map_load_tool'
   import esriLoader from 'esri-loader'
-  // let map_apis = load_esri();
+  import {LoadShpLayer} from '@/httpConfig/api'
+  import {AreaCoverAnalysis} from '@/httpConfig/api'
+  import {PostAreaCoverDefect} from '@/httpConfig/api'
 
-  export default {
+    export default {
     name: "planeMap",
     components: {Index},
     data(){
       return {
+        AreaCover: {
+          maxLatitude: 32.258000,
+          minLatitude: 32.257300,
+          maxLongitude: 118.749300,
+          minLongitude: 118.749250,
+          incrementAngle: '65',
+          threadNum: '3',
+          reflectionNum: '3',
+          diffractionNum: '2',
+          diffPointsMargin: '3',
+          computeIndoor: true,
+          computeDiffrac: true,
+          directCoeff: '0.3',
+          reflectCoeff: '1.0',
+          diffractCoeff: '1.0',
+          diffractCoeff2: '1.0',
+        },
+        PostAreaCover: {
+          maxLatitude: 32.258000,
+          minLatitude: 32.257300,
+          maxLongitude: 118.749300,
+          minLongitude: 118.749250,
+
+        },
+        drawFlag: false,
         message: 'aa',
         apis: null,
         buildInfo:null,
         map:null,
         query:null,
-        queryTask:null,
+        queryTaskForBuilding: null,
+        queryTaskForGSM: null,
         mapImage:null,
         mapView:null,
         buildingPopupTemplate:null,
         cellPopupTemplate:null,
         functionPopupTemplate:null,
-        graphic:null
+        graphic: null,
+        gsmNameFind: '汊河变中兴宏基站-扇区1',
       }
     },
     mounted () {
       this.loadMap()
-
     },
     computed: {
       view () {
@@ -50,33 +128,37 @@
         let apis = await load_esri();
         esriLoader.loadCss("/static/arcgis_js_api/library/4.11/esri/css/main.css");
         this.apis = apis;
+        this.apis.urlUtils.addProxyRule({
+          urlPrefix: "http://10.103.252.26:6080",  //切片服务地址
+          proxyUrl: "http://10.103.252.26:80/DotNet/proxy.ashx"   //代理部署地址
 
-        let mapUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer";
-        let gsmLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/3";
-        let buildingLayerUrl = "http://localhost:6080/arcgis/rest/services/GSM/MapServer/2";
+
+        });
+
+        // let mapUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer'
+        // let gsmLayerUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer/0'
+        // let buildingLayerUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer/3'
+        // this.apis.esriConfig.request.corsEnabledServers.push("localhost:8080");
+        let mapUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer';
+        let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer/1';
+        let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer/0';
+
+        //老地图
+        // let mapUrl = 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer'
+        // let gsmLayerUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE/MapServer/3'
+        // let buildingLayerUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE/MapServer/2'
 
         this.map = new apis.map();
-        /*let grassRenderer = {
-          type: "simple", // autocasts as new SimpleRenderer()
-          symbol: {
-            type: "simple-line", // autocasts as new SimpleLineSymbol()
-            style: "none",
-            width: 0.7,
-            color: "green"
-          },
-          label: "grass"
-        };*/
+        // this.mapImage = new apis.MapImageLayer({url:mapUrl});
+        this.mapImage = new apis.TileLayer({
+          url: mapUrl,
+          // url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer',
+          // url: 'https://services.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer',
 
-        this.mapImage = new apis.MapImageLayer({url:mapUrl});
+          // opacity:0.9
+        });
+        this.map.add(this.mapImage);
 
-        // let buildingLayer = new apis.FeatureLayer({
-        //   url:buildingLayerUrl
-        // })
-        // let gsmLayer = new apis.FeatureLayer({
-        //   url:gsmLayerUrl
-        // })
-        // this.map.addMany([buildingLayer,gsmLayer]);
-        this.map.add(this.mapImage)
 
         this.mapView = new apis.mapview ({
           container: "viewDiv",
@@ -89,23 +171,60 @@
         let searchWidget = new apis.Search({view: this.mapView});
         let zoomWidget = new apis.Zoom({view: this.mapView});
         this.mapView.ui.add(searchWidget,"top-right");
-        this.mapView.ui.add(zoomWidget,"top-left");
+        this.mapView.ui.add('optionsDiv', 'top-left');
+        this.mapView.ui.add("line-button", "top-left");//添加绘制线按钮，自定义UI
+        this.mapView.ui.add("area-button", "top-left");//添加绘制面按钮，自定义UI
+        this.mapView.ui.add("point-button", "top-left");//添加绘制面按钮，自定义UI
+        this.mapView.ui.add("circle-button", "top-left");//添加绘制面按钮，自定义UI
+        this.mapView.ui.add("rectangle-button", "top-left");//添加绘制面按钮，自定义UI
+
         //创建查询对象
         this.query = new this.apis.Query();
         this.query.outFields = ["*"];//返回所有查询的属性
         this.query.returnGeometry = true;
-        this.queryTask = new this.apis.QueryTask(buildingLayerUrl);
+        this.queryTaskForBuilding = new this.apis.QueryTask(buildingLayerUrl);
+        this.queryTaskForGSM = new this.apis.QueryTask(gsmLayerUrl);
 
+        this.mapView.on('click', this.eventHandler);
         //给地图绑定点击监听事件
         // let buildingFeatureLayer = new this.apis.FeatureLayer({
         //   url:buildingLayerUrl,
         //   outFields: ["*"],
-        //   popupTemplate:this.buildingPopupTemplate
+        //   popupTemplate:this.building
         // });
-
-        // let viewListener = this.mapView.on("pointer-move",this.do_query);
-        let viewListener = this.mapView.on("pointer-move",this.eventHandler);
-        // this.mapView.on("click",this.clickHandler)
+        //let viewListener = this.mapView.on("pointer-move",this.eventHandler);
+        this.mapView.when(() => {
+          let draw = new this.apis.Draw({
+            view: this.mapView
+          });
+          console.log('done');
+          let drawLineButton = document.getElementById("line-button");
+          drawLineButton.onclick = () => {
+            this.mapView.graphics.removeAll();//清楚之前的绘制
+            this.enableCreateLine(draw, this.mapView);
+        };
+        //绑定面按钮绘制事件
+        let drawAreaButton = document.getElementById("area-button");
+        drawAreaButton.onclick = () => {
+          this.mapView.graphics.removeAll();//清楚之前的绘制
+          this.enableCreateArea(draw, this.mapView);
+        };
+        //绑定面按钮绘制事件
+        let drawPointButton = document.getElementById("point-button");
+        drawPointButton.onclick = () => {
+          this.enableCreatePoint(draw, this.mapView);
+        };
+        //绑定面按钮绘制事件
+        let drawCircleButton = document.getElementById("circle-button");
+        drawCircleButton.onclick = () => {
+          this.enableCreateCircle(draw, this.mapView);
+        };
+        //绑定面按钮绘制事件
+        let drawRectangleButton = document.getElementById("rectangle-button");
+        drawRectangleButton.onclick = () => {
+          this.enableCreateRectangle(draw, this.mapView);
+        };
+        });
 
         //building弹出窗体
         this.buildingPopupTemplate = {
@@ -121,22 +240,31 @@
               // label:"Bid",
               visible:true,
             },{
-              fieldName:"Longitude",
-              visible:true,
-            },{
-              fieldName:"Latitude",
+              fieldName: 'CellName',
               visible:true,
             }]
           }]
           // fieldInfos:["*"],
-        }
+        };
         //功能项弹出窗体
-        let CellRayTracing = '<a href="http://www.w3school.com.cn">小区覆盖计算</a>'
+        let coverLayerAction = {
+          title: '查看覆盖图层',
+          id: 'findCoverLayer',
+        };
+        let task = '<a href="http://www.w3school.com.cn">小区覆盖计算</a>'
         this.functionPopupTemplate = {
           title:"The executing task for this selected building",
-          content:CellRayTracing
-        }
+          content: task,
+          actions: [coverLayerAction]
+        };
 
+        //绑定弹窗监听
+        this.mapView.popup.on('trigger-action', (event)=>{
+            if (event.action.id === 'findCoverLayer') {
+              let coverName = this.findLayer();
+              this.addLayer(coverName)
+            }
+        })
         //todo 根据点击不同的layer，展现不同的popupTemplate
 
         // //cell弹出窗体
@@ -144,51 +272,117 @@
         //
         // }
       },
+      test(){
+        //汊河变中兴宏基站-扇区1
+        let gsmNameDate = null;
+        let errInfo = null;
+        gsmNameDate = LoadShpLayer({'IndexName': this.gsmNameFind})
+        // gsmNameDate = LoadShpLayer({'IndexName': '小区8覆盖'})
+          .then(res=>{
+            let temp = res.data.obj;
+            console.log(temp);
+            this.addLayer(temp)
+          })
+          .catch(err => {errInfo = err;});
+      },
+      // Executes each time the button is clicked
+      doQuery () {
+        // Clear the results from a previous query
+        this.mapView.graphics.removeAll();
+        this.query.where = "CellName = '" + this.gsmNameFind + "'";
 
-      do_query(evt){
-        this.mapView.graphics.removeAll();//clear currently displayed results
-        this.query.geometry = evt.mapPoint;//获取地图点击的点，得到geometry区域
-        let lat = evt.mapPoint.latitude;
-        let lon = evt.mapPoint.longitude;
+        //     // this.mapView.on("click",(evt)=>{
+        //     //   if(evt.button===2){
+        //     //     graphict.popupTemplate = this.functionPopupTemplate;
+        //     //   }
+        //     // })
+        //   })
+        // 查询GSM
+        this.queryTaskForGSM.execute(this.query).then((res) => {
+          if(res.features!==0){
+            //解析attributes
+            let featureArray = res.features;
+            let graphict = featureArray[0];
 
-        // this.add_circle(center,radius,color,attr,featureLayer);
-
-        this.query.outSpatialReference = this.mapView.spatialReference;
-        this.queryTask.execute(this.query).then((res)=>{
-          console.log("执行了查询");
-          //解析attributes
-          let featureArray = res.features;
-          let graphic = featureArray[0];
-          graphic.attributes["Longitude"] = lon;
-          graphic.attributes["Latitude"] = lat;
-          this.buildInfo = graphic.attributes;
-          console.log(graphic)
-          graphic.symbol = {
-            type: "simple-line",
+            this.buildInfo = graphict.attributes;
+            graphict.symbol = {
+              type: "simple-line",
+              color: [226, 119, 40],
+            };
+            //再次点击时，就相当于点击这个graphic，那么就会自动呈现template
+            this.mapView.graphics.add(graphict);
+            this.graphic = graphict;
+            return graphict;
+          }
+        })
+            .then((graphict)=>{
+              if(graphict==null){
+                return
+              }
+              this.mapView.goTo({
+                    target: graphict,
+                    scale: 6000
+                  },
+                  {
+                    duration: 2000
+                  });
+              //左键将查询到的graphic绑定定义好的template
+              graphict.popupTemplate = this.buildingPopupTemplate;
+            })
+            .catch(error=>{
+              console.log("error = ", error);
+                  })
+      },
+      getResults (response) {
+        console.log(response);
+        let temp = this.functionPopupTemplate;
+        // Loop through each of the results and assign a symbol and PopupTemplate
+        // to each so they may be visualized on the map
+        var peakResults = response.features.map(function (feature) {
+          // Sets the symbol of each resulting feature to a cone with a
+          // fixed color and width. The height is based on the mountain's elevation
+          feature.popupTemplate = temp;
+          feature.symbol = {
+            type: 'simple-line',
             color: [226, 119, 40],
           };
-          //将查询到的graphic绑定定义好的template
-          graphic.popupTemplate = this.buildingPopupTemplate;
-          //再次左键点击时，就相当于点击这个graphic，那么就会自动呈现template
-          this.mapView.graphics.add(graphic);
-          return graphic;
-        }).then((graphic)=>{
-          this.mapView.on("click",(evt)=>{
-            console.log("951");
+          return feature
+        });
+        this.mapView.graphics.add(peakResults);
+        //this.graphic = peakResults;
+        // return peakResults;
+        // animate to the results after they are added to the map
+        this.mapView.goTo(peakResults).then(function () {
+          this.mapView.popup.open({
+            features: peakResults,
+            featureMenuOpen: true,
+            updateLocationEnabled: true
           })
         })
       },
-
+      promiseRejected (error) {
+        console.error('Promise rejected: ', error.message)
+      },
+      showGraphic () {
+        this.graphic = null
+      },
       eventHandler(evt){
         this.graphic = null;
         this.buildInfo = null;
-        this.mapView.graphics.removeAll();//clear currently displayed results
-        let point = this.mapView.toMap(evt)
+        if (!this.drawFlag){
+          this.mapView.graphics.removeAll();//clear currently displayed results
+        }
+        // console.log(evt);
+        let point = this.mapView.toMap(evt);
         this.query.geometry = point;//获取地图点击的点，得到geometry区域
         let lat = point.latitude;
         let lon = point.longitude;
+
+
         this.query.outSpatialReference = this.mapView.spatialReference;
-        this.queryTask.execute(this.query).then((res)=>{
+
+        this.queryTaskForBuilding.execute(this.query).then((res) => {
+        // this.queryTaskForGSM.execute(this.query).then((res) => {
           if(res.features!==0){
             //解析attributes
             let featureArray = res.features;
@@ -266,11 +460,6 @@
           // }
         };
 
-        // let circleGeometry  = new this.apis.geometry.Circle({ center: [geometry.getLongitude(), geometry.getLatitude()],
-        //   radius: radius,
-        // });
-
-
         let circleGraphic = new this.apis.Graphic({
           geometry:circle,
           symbol:fillSymbol,
@@ -285,22 +474,862 @@
 
         this.mapView.graphics.add(circleGraphic);
 
-        // this.mapView.graphics.add(pointGraphic);
+      },
 
-        // layer.applyEdits({
-        //   addFeatures: [circleGraphic],
-        // }).then(editsResult=>{
-        //   // let objectId = editsResult.addFeatureResults[0].objectId;
-        //   // selectFeature(objectId);
-        //   console.log("13");
-        //   console.log(editsResult);
-        //   layer.refresh();
-        // }).catch(error=>{
-        //   console.log("===============================================");
-        //   console.error("[ applyEdits ] FAILURE: ", error.code, error.name, error.message);
-        //   console.log("error = ", error);
-        // });
-      }
+      findLayer () {
+        return '小区1覆盖.shp'
+      },
+      addLayer (dataSourceName) {
+
+        const color1 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#0000CD",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color2 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#0000FF",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color3 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#4169E1",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+
+        const color4 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#6495ED",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color5 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#1E90FF",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color6 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#00BFFF",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color7 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#00FFFF",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color8 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#40E0D0",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color9 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#7FFFAA",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color10 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#00FA9A",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color11 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#00FF7F",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color12 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#90EE90",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color13 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#98FB98",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color14 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#32CD32",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color15 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#00FF00",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color16 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#7FFF00",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color17 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#7CFC00",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color18 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#ADFF2F",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color19 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#FFFF00",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color20 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#FFD700",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color21 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#FFA500",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color22 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#FF8C00",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color23 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#FF7F50",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color24 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#FF4500",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+        const color25 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#FF0000",
+          style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+
+        const renderer = {
+          type: 'class-breaks',
+          field: "RecePower",
+          legendOptions: {
+            title: "这是图例"
+          },
+          symbol: {
+            type: 'simple-line', // autocasts as new SimpleLineSymbol()
+            style: 'none',
+            width: 0.7,
+            color: 'green'
+          },
+          classBreakInfos: [
+            {
+              minValue: -200,
+              maxValue: -113,
+              symbol: color1,
+              label: "-113"
+            },
+            {
+              minValue: -112,
+              maxValue: -109,
+              symbol: color2,
+              label: "-112 - -109"
+
+            },
+            {
+              minValue: -108,
+              maxValue: -105,
+              symbol: color3,
+              label: "-108 - -105"
+            },
+            {
+              minValue: -105,
+              maxValue: -102,
+              symbol: color4,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -101,
+              maxValue: -99,
+              symbol: color5,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -98,
+              maxValue: -96,
+              symbol: color6,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -95,
+              maxValue: -93,
+              symbol: color7,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -92,
+              maxValue: -90,
+              symbol: color8,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -89,
+              maxValue: -87,
+              symbol: color9,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -86,
+              maxValue: -84,
+              symbol: color10,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -83,
+              maxValue: -81,
+              symbol: color11,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -80,
+              maxValue: -78,
+              symbol: color12,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -77,
+              maxValue: -75,
+              symbol: color13,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -74,
+              maxValue: -72,
+              symbol: color14,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -71,
+              maxValue: -69,
+              symbol: color15,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -68,
+              maxValue: -66,
+              symbol: color16,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -65,
+              maxValue: -63,
+              symbol: color17,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -62,
+              maxValue: -60,
+              symbol: color18,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -59,
+              maxValue: -57,
+              symbol: color19,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -56,
+              maxValue: -54,
+              symbol: color20,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -53,
+              maxValue: -51,
+              symbol: color21,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -50,
+              maxValue: -48,
+              symbol: color22,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -48,
+              maxValue: -46,
+              symbol: color23,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -45,
+              maxValue: -43,
+              symbol: color24,
+              label: "-108 - -105"
+
+            },
+            {
+              minValue: -42,
+              maxValue: -40,
+              symbol: color25,
+              label: "-108 - -105"
+
+            },]
+        };
+
+        // let grassRenderer = {
+        //   type: 'simple', // autocasts as new SimpleRenderer()
+        //   symbol: {
+        //     type: 'simple-line', // autocasts as new SimpleLineSymbol()
+        //     style: 'none',
+        //     width: 0.7,
+        //     color: 'green'
+        //   },
+        //   label: 'grass'
+        // };
+
+        let layer = new this.apis.MapImageLayer({
+          // url: 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer',
+          // url: 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer',
+          url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer',                  // 感觉这里有点问题？以后再改
+          sublayers: [{
+            renderer: renderer,
+            source: {
+              type: 'data-layer',
+              dataSource: {
+                type: 'table',
+                workspaceId: '1',
+                dataSourceName: dataSourceName
+              }
+            }
+          }]
+        });
+
+        const legend = new this.apis.Legend({
+          view: this.mapView
+        });
+
+        this.mapView.ui.add(legend, "bottom-left");
+
+        console.log(layer);
+        this.map.add(layer)
+      },
+
+      handleCommand(command) {
+        if (command === 'showBuildingLayer')
+        {
+          this.showBuildingLayer()
+        }
+        if (command === 'showAreaLayer')
+        {
+          this.showAreaLayer()
+        }
+        if (command === 'showNetInLayer')
+        {
+          this.showNetInLayer()
+        }
+        if (command === 'showNetOutLayer')
+        {
+          this.showNetOutLayer()
+        }
+        if (command === 'showVirtualLayer')
+        {
+          this.showVirtualLayer()
+        }
+      },
+
+      showBuildingLayer()
+      {
+        this.test()
+      },
+      showAreaLayer()
+      {
+        //创建点
+        let long =118.789300;
+        let lat = 32.047300;
+
+        //生成绘制的图形
+        let graphic = new this.apis.Graphic({
+          geometry: new this.apis.Point(long, lat),
+          symbol: {
+            type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+            style: "square",
+            color: "blue",
+            size: "8px",  // pixels
+            outline: {  // autocasts as new SimpleLineSymbol()
+              color: [ 255, 255, 0 ],
+              width: 3  // points
+            }
+          }
+        });
+        // 将绘制的图形添加到view
+        this.mapView.graphics.add(graphic);
+
+      },
+      showNetInLayer()
+      {
+
+      },
+      showNetOutLayer()
+      {
+        PostAreaCoverDefect(this.PostAreaCover).then((response) => {
+          console.log(response);
+          this.jumpProgress();
+        }).catch((error) => {
+          console.log(error);});
+      },
+      showVirtualLayer()
+      {
+        // console.log(this.AreaCover);
+        AreaCoverAnalysis(this.AreaCover).then((response) => {
+          console.log(response);
+          // if (response && response.data.ok) {
+            this.jumpProgress();
+          // }
+        }).catch((error) => {
+          console.log(error);});
+      },
+      do_query(evt){
+        this.mapView.graphics.removeAll();//clear currently displayed results
+        this.query.geometry = evt.mapPoint;//获取地图点击的点，得到geometry区域
+        let lat = evt.mapPoint.latitude;
+        let lon = evt.mapPoint.longitude;
+
+        // this.add_circle(center,radius,color,attr,featureLayer);
+
+        this.query.outSpatialReference = this.mapView.spatialReference;
+        this.queryTask.execute(this.query).then((res)=>{
+          console.log("执行了查询");
+          //解析attributes
+          let featureArray = res.features;
+          let graphic = featureArray[0];
+          graphic.attributes["Longitude"] = lon;
+          graphic.attributes["Latitude"] = lat;
+          this.buildInfo = graphic.attributes;
+          console.log(graphic)
+          graphic.symbol = {
+            type: "simple-line",
+            color: [226, 119, 40],
+          };
+          //将查询到的graphic绑定定义好的template
+          graphic.popupTemplate = this.buildingPopupTemplate;
+          //再次左键点击时，就相当于点击这个graphic，那么就会自动呈现template
+          this.mapView.graphics.add(graphic);
+          return graphic;
+        }).then((graphic)=>{
+          this.mapView.on("click",(evt)=>{
+            console.log("951");
+          })
+        })
+      },
+
+      //开始监听画线
+      enableCreateLine(draw, view) {
+        let action = draw.create("polyline", {
+          mode: "click"
+        });
+        // 获取焦点
+        view.focus();
+        // 顶点添加事件
+        action.on("vertex-add", this.createPolyline);
+        //顶点移除事件
+        action.on("vertex-remove", this.createPolyline);
+        // 鼠标移动事件
+        action.on("cursor-update", this.createPolyline);
+        // 绘制完成事件
+        action.on("draw-complete", this.createPolyline);
+      },
+  //开始监听画面
+      enableCreateArea(draw, view) {
+        let action = draw.create("polygon", {
+          mode: "click"//点击方式加点
+        });
+        // 获取焦点
+        view.focus();
+        // 顶点添加事件
+        action.on("vertex-add", this.createPolygon);
+        //顶点移除事件
+        action.on("vertex-remove", this.createPolygon);
+        // 鼠标移动事件
+        action.on("cursor-update", this.createPolygon);
+        // 绘制完成事件
+        action.on("draw-complete", this.createPolygon);
+  },
+  //开始监听画点
+      enableCreatePoint(draw, view) {
+        let action = draw.create("point", {
+          mode: "click"//点击方式加点
+        });
+        // 获取焦点
+        view.focus();
+        // 顶点添加事件
+        action.on("vertex-add", this.createPoint);
+        //顶点移除事件
+        action.on("vertex-remove", this.createPoint);
+        // 绘制完成事件
+        action.on("draw-complete", this.createPoint);
+  },
+  //开始监听画圆
+      enableCreateCircle(draw, view) {
+        let action = draw.create("circle", {
+          mode: "click"//点击方式加点
+        });
+        // 获取焦点
+        view.focus();
+        //顶点移除事件
+        action.on("vertex-remove", this.createCircle);
+        // 鼠标移动事件
+        action.on("cursor-update", this.createCircle);
+        // 绘制完成事件
+        action.on("draw-complete", this.createCircle);
+  },
+  //开始监听画矩形
+      enableCreateRectangle(draw, view) {
+        let action = draw.create("rectangle", {
+          mode: "click"//点击方式加点
+        });
+        // 获取焦点
+        view.focus();
+        //顶点移除事件
+        action.on("vertex-remove", this.createRectangle);
+        // 鼠标移动事件
+        action.on("cursor-update", this.createRectangle);
+        // 绘制完成事件
+        action.on("draw-complete", this.createRectangle);
+  },
+  //根据点坐标生成新的线
+      createPolyline(event) {
+        //获取所有顶点
+        let vertices = event.vertices;
+        //清除之前绘制
+        this.mapView.graphics.removeAll();
+        // 生成绘制的图形
+        let graphic = new this.apis.Graphic({
+          geometry: new this.apis.Polyline({
+            paths: vertices,
+            spatialReference: this.mapView.spatialReference
+          }),
+          symbol: {
+            type: "simple-line", // autocasts as new SimpleFillSymbol
+            color: [4, 90, 141],
+            width: 4,
+            cap: "round",
+            join: "round"
+          }
+        });
+        // 将绘制的图形添加到view
+
+        this.mapView.graphics.add(graphic);
+  },
+  //根据点坐标生成新的线
+      createPolygon(event) {
+        //获取所有顶点
+        let vertices = event.vertices;
+        //清除之前绘制
+        this.mapView.graphics.removeAll();
+
+        // 生成绘制的图形
+        let graphic = new this.apis.Graphic({
+          geometry: new this.apis.Polygon({
+            hasZ: false,
+            hasM: false,
+            rings: [vertices],
+            spatialReference: this.mapView.spatialReference
+          }),
+          symbol: {
+            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+            color: [ 51,51, 204, 0.9 ],
+            style: "solid",
+            outline: {  // autocasts as new SimpleLineSymbol()
+              color: "white",
+              width: 1
+            }
+          }
+    });
+    // 将绘制的图形添加到view
+        this.mapView.graphics.add(graphic);
+  },
+  //根据点坐标生成新的线
+      createPoint(event) {
+        //获取所有顶点
+        var coordinates = event.coordinates;
+
+        //生成绘制的图形
+        var graphic = new this.apis.Graphic({
+          geometry: new this.apis.Point({
+            hasZ: false,
+            hasM: false,
+            x:coordinates[0],
+            y:coordinates[1],
+            spatialReference: this.mapView.spatialReference
+          }),
+          symbol: {
+            type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+            style: "square",
+            color: "blue",
+            size: "8px",  // pixels
+            outline: {  // autocasts as new SimpleLineSymbol()
+              color: [ 255, 255, 0 ],
+              width: 3  // points
+            }
+          }
+    });
+    // 将绘制的图形添加到view
+        this.mapView.graphics.add(graphic);
+  },
+  //根据点坐标生成新的线
+      createCircle(event) {
+        //获取所有顶点
+        var vertices = event.vertices;
+        //少于一个点无法展示圆
+        if(vertices.length<2){
+          return
+        }
+        //清除之前绘制
+        this.mapView.graphics.removeAll();
+        this.drawFlag = false;
+        //生成绘制的图形,两点画圆
+        var center=new this.apis.Point({
+          hasZ: false,
+          hasM: false,
+          x:vertices[0][0],
+          y:vertices[0][1],
+          spatialReference: this.mapView.spatialReference
+        });
+        let dis=center.distance(new this.apis.Point({
+          hasZ: false,
+          hasM: false,
+          x:vertices[1][0],
+          y:vertices[1][1],
+          spatialReference: this.mapView.spatialReference
+        }));
+        let graphic = new this.apis.Graphic({
+          geometry: new this.apis.Circle({
+            hasZ: false,
+            hasM: false,
+            center:center,
+            radius:dis,
+            spatialReference: this.mapView.spatialReference
+          }),
+          symbol: {
+            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+            color: [ 51,51, 204, 0.9 ],
+            style: "solid",
+            outline: {  // autocasts as new SimpleLineSymbol()
+              color: "white",
+              width: 1
+            }
+          }
+        });
+        // 将绘制的图形添加到view
+        this.mapView.graphics.add(graphic);
+        this.drawFlag = true;
+  },
+      createRectangle(event) {
+        let startPointLat = 0;
+        let startPointLon = 0;
+        let centerPointLat = 0;
+        let centerPointLon = 0;
+        let endPointLat = 0;
+        let endPointLon = 0;
+
+        //获取所有顶点
+        var vertices = event.vertices;
+        //两点画矩形
+        if(vertices.length<2){
+          return
+        }
+        var rings=[vertices[0],[vertices[0][0],vertices[1][1]],vertices[1],[vertices[1][0],vertices[0][1]]];
+        //清除之前绘制
+        this.mapView.graphics.removeAll();
+        this.drawFlag = false;
+        // 生成绘制的图形
+        var graphic = new this.apis.Graphic({
+          geometry: new this.apis.Polygon({
+            hasZ: false,
+            hasM: false,
+            rings: [rings],
+            spatialReference: this.mapView.spatialReference
+          }),
+          symbol: {
+            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+            color: [ 51,51, 204, 0.9 ],
+            style: "solid",
+            outline: {  // autocasts as new SimpleLineSymbol()
+              color: "white",
+              width: 1
+            }
+          }
+        });
+        // 将绘制的图形添加到view
+        this.mapView.graphics.add(graphic);
+        this.drawFlag = true;
+
+        if (event.type === 'draw-complete'){
+          centerPointLat = graphic.geometry.extent.center.latitude;
+          centerPointLon = graphic.geometry.extent.center.longitude;
+        }
+        if(event.native.type === 'pointerup'){
+          let point = this.mapView.toMap(event.native);
+          endPointLat = point.latitude;
+          endPointLon = point.longitude;
+        }
+
+        if (endPointLat > centerPointLat) {
+          startPointLat = centerPointLat - (endPointLat - centerPointLat);
+        }
+        else{
+          startPointLat = centerPointLat + (centerPointLat - endPointLat);
+        }
+
+        if (endPointLon > centerPointLon) {
+          startPointLon = centerPointLon - (endPointLon - centerPointLon);
+        }
+        else{
+          startPointLon = centerPointLon + (centerPointLon - endPointLon);
+        }
+
+        if (startPointLat !== 0 && startPointLon !== 0){
+          this.AreaCover.maxLatitude = Math.max(startPointLat, endPointLat);
+          this.AreaCover.minLatitude = Math.min(startPointLat, endPointLat);
+          this.AreaCover.maxLongitude = Math.max(startPointLon, endPointLon);
+          this.AreaCover.minLongitude = Math.min(startPointLon, endPointLon);
+
+          this.PostAreaCover.maxLatitude = Math.max(startPointLat, endPointLat);
+          this.PostAreaCover.minLatitude = Math.min(startPointLat, endPointLat);
+          this.PostAreaCover.maxLongitude = Math.max(startPointLon, endPointLon);
+          this.PostAreaCover.minLongitude = Math.min(startPointLon, endPointLon);
+          console.log(this.AreaCover.maxLatitude);
+          console.log(this.AreaCover.minLatitude);
+          console.log(this.AreaCover.maxLongitude);
+          console.log(this.AreaCover.minLongitude);
+        }
+      },
+      jumpProgress(){
+        let routeUrl = this.$router.resolve({
+          path: "/index/taskProgress",
+        });
+        window.open(routeUrl.href, '_blank');
+      },
     }
   };
 </script>
@@ -314,5 +1343,12 @@
     width: 100%;
     height: 1000px;
     padding-top: 15px;
+  }
+
+  #optionsDiv {
+    background-color: dimgray;
+    color: white;
+    padding: 10px;
+    width: 200px;
   }
 </style>

@@ -6,10 +6,10 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     user: {
-      // name: window.localStorage.getItem('user' || '[]') == null ? 'not logged' : JSON.parse(window.localStorage.getItem('user' || '[]')).name,
       userFace: window.localStorage.getItem('user' || '[]') == null ? '' : JSON.parse(window.localStorage.getItem('user' || '[]')).userface,
       userName: window.localStorage.getItem('user' || '[]') == null ? '' : JSON.parse(window.localStorage.getItem('user' || '[]')).username,
-      userRoles: window.localStorage.getItem('user' || '[]') == null ? '' : JSON.parse(window.localStorage.getItem('user' || '[]')).roles
+      userRoles: window.localStorage.getItem('user' || '[]') == null ? '' : JSON.parse(window.localStorage.getItem('user' || '[]')).roles,
+      userID: window.localStorage.getItem('user' || '[]') == null ? '' : JSON.parse(window.localStorage.getItem('user' || '[]')).userid
     },
     routes: [],
     // msgList: [],

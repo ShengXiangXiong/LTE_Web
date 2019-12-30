@@ -21,7 +21,14 @@ let modules =  [
   "esri/widgets/Search",
   "esri/widgets/Legend",
   "esri/Graphic",
-  "esri/geometry/Circle"
+  "esri/geometry/Circle",
+
+  "esri/views/2d/draw/Draw",
+  "esri/geometry/Polyline",
+  "esri/geometry/Polygon",
+  "esri/geometry/Point",
+  "esri/core/urlUtils",
+  "esri/config",
 ];
 
 
@@ -29,9 +36,9 @@ export default function importEsri() {
   return new Promise((resolve, reject)=>{
     esriLoader.loadModules(modules, options).then((res)=>{
       let [map,web_map,mapview, FeatureLayer,MapImageLayer, QueryTask, Query, SimpleFillSymbol,SimpleLineSymbol, color,
-        TileLayer, Zoom, Compass, Search, Legend, Graphic,Circle] = [...res];
+        TileLayer, Zoom, Compass, Search, Legend, Graphic,Circle,Draw,Polyline,Polygon,Point, urlUtils, esriConfig] = [...res];
       let apis = {map,web_map,mapview, FeatureLayer,MapImageLayer, QueryTask, Query, SimpleFillSymbol,SimpleLineSymbol, color,
-        TileLayer, Zoom, Compass, Search, Legend, Graphic,Circle};
+        TileLayer, Zoom, Compass, Search, Legend, Graphic,Circle,Draw,Polyline,Polygon,Point, urlUtils, esriConfig};
       resolve(apis)
     }).catch(err => {reject(err)})
   })

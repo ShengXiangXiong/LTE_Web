@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import login from '../components/login/login'
-import logout from '../components/logout/logout'
 import project_show from '../components/project_manage/project_show'
 import index from '../components/index'
 import CellRayTracing from '../components/coverageCompute/CellRayTracing'
@@ -11,6 +10,7 @@ import GridDivision from '../components/sceneModeling/GridDivision'
 import ExtraInterferenceLoc from '../components/extraInterferenceLoc/ExtraInterferenceLoc'
 import InterferenceRayRecord from '../components/extraInterferenceLoc/InterferenceRayRecord'
 import InternalInterferenceAnalysis from '../components/internalInterferenceAnalysis/InternalInterferenceAnalysis'
+import taskProgress from "../components/toolComponents/taskProgress"
 
 Vue.use(Router)
 
@@ -18,18 +18,15 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'index',
-      component: index
+      // name: 'index',
+      // component: index
+      name: 'login',
+      component: login
     },
     {
       path: '/login',
       name: 'login',
       component: login
-    },
-    {
-      path: '/logout',
-      name: 'logout',
-      component: logout
     },
     {
       path: '/project_show',
@@ -47,13 +44,20 @@ export default new Router({
         {path: 'ExtraInterferenceLoc', component: ExtraInterferenceLoc},
         {path: 'InterferenceRayRecord', component: InterferenceRayRecord},
         {path: 'GridDivision', component: GridDivision},
-        {path: 'InternalInterferenceAnalysis', component: InternalInterferenceAnalysis}
+        {path: 'InternalInterferenceAnalysis', component: InternalInterferenceAnalysis},
+        {path: 'taskProgress', component: taskProgress},
       ]
     },
     {
       path: '/CellRayTracing',
       name: 'CellRayTracing',
       component: CellRayTracing
-    }
+    },
+    // {
+    //   path: '/taskProgress',
+    //   name: 'taskProgress',
+    //   component: taskProgress
+    // },
+
   ]
 })

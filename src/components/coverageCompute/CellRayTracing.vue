@@ -5,7 +5,6 @@
         射线跟踪参数设定
       </div>
        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="170px" >
-
          <div class="sub_title_css">
            小区参数
          </div>
@@ -83,20 +82,27 @@
            <el-form-item>
              <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
              <el-button @click="resetForm('ruleForm')">重置</el-button>
+             <el-button type="primary" @click="refreshGround">图层显示</el-button>
            </el-form-item>
          </div>
-
        </el-form>
     </div>
   </div>
 </template>
 <script>
+  import {coverageCompute} from '@/httpConfig/api'
+  import {getInfo} from '@/httpConfig/api'
+  import {postRefreshCellGroundCover} from '@/httpConfig/api'
   export default {
+
     name: 'CellRayTracing',
     data () {
       return {
+        refreshName:{
+          cellName: '汊河变中兴宏基站-扇区2',
+        },
         ruleForm: {
-          cellName: 'DQVJTX2',
+          cellName: '汊河变中兴宏基站-扇区1',
           distance: '1000',
           incrementAngle: '65',
           threadNum: '3',
@@ -163,25 +169,37 @@
       submitForm (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$http.post('api/CellRayTracing/PostRayTracing', this.ruleForm)
+            coverageCompute(this.ruleForm).catch(err => {errInfo = err;})
               .then(response => {
-                if (response && response.data.ok) {
-                  this.$router.push({
-                    path: '/index'
-                  })
-                }
-              })
-            this.$message.success({message: '任务提交成功!'})
+              if (response && response.data.ok) {
+                this.jumpProgress();
+              }
+              });
+            this.$message.success({message: '任务提交成功!'});
+
           } else {
             this.$message.error({
               message: 'submit fail'
-            })
+            });
             return false
           }
         })
       },
+      jumpProgress(){
+        let routeUrl = this.$router.resolve({
+          path: "/index/taskProgress",
+        });
+        window.open(routeUrl.href, '_blank');
+      },
+      refreshGround(){
+        postRefreshCellGroundCover(this.refreshName).then((response) => {
+          console.log(response);
+        }).catch((error) => {
+          console.log(error);});
+      },
       resetForm (formName) {
-        this.$refs[formName].resetFields()
+        // this.$refs[formName].resetFields()
+        this.jumpProgress();
       }
     }
   }
@@ -212,4 +230,5 @@
   .title_css{
     font-size: 20px;
     padding-bottom: 20px;
-  }</style>
+  }
+</style>
