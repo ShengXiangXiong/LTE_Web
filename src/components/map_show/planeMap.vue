@@ -33,6 +33,8 @@
           ></el-input>
         </el-col>
         <el-col> <el-button class="esri-widget" id="doBtn" @click="doQuery" icon="el-icon-search" type="primary" size="small">查询</el-button></el-col>
+        <el-col> <el-button class="esri-widget" id="doBtn1" @click="roadMeasure" icon="el-icon-search" type="primary" size="small">路测</el-button></el-col>
+        <el-col> <el-button class="esri-widget" id="doBtn2" @click="reverTrace" icon="el-icon-search" type="primary" size="small">反向跟踪</el-button></el-col>
 
         <el-dropdown @command="handleCommand">
           <el-button type="primary" class="esri-widget">
@@ -93,6 +95,8 @@
           minLongitude: 118.749250,
 
         },
+        nowLayer: null,
+        nowLegend: null,
         drawFlag: false,
         message: 'aa',
         apis: null,
@@ -131,40 +135,28 @@
         this.apis.urlUtils.addProxyRule({
           urlPrefix: "http://10.103.252.26:6080",  //切片服务地址
           proxyUrl: "http://10.103.252.26:80/DotNet/proxy.ashx"   //代理部署地址
-
-
         });
 
-        // let mapUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer'
-        // let gsmLayerUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer/0'
-        // let buildingLayerUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer/3'
-        // this.apis.esriConfig.request.corsEnabledServers.push("localhost:8080");
         let mapUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer';
         let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer/1';
-        let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer/0';
-
-        //老地图
-        // let mapUrl = 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer'
-        // let gsmLayerUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE/MapServer/3'
-        // let buildingLayerUrl = 'http://10.103.242.20:6080/arcgis/rest/services/LTE/MapServer/2'
-
+        let gsmLayerUrl = '小区.shp';
+        let testName = '小区8覆盖.shp';
         this.map = new apis.map();
-        // this.mapImage = new apis.MapImageLayer({url:mapUrl});
         this.mapImage = new apis.TileLayer({
           url: mapUrl,
-          // url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer',
-          // url: 'https://services.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer',
-
-          // opacity:0.9
+          legendEnabled: false,
         });
         this.map.add(this.mapImage);
-
 
         this.mapView = new apis.mapview ({
           container: "viewDiv",
           map: this.map,
           zoom: 3,
         });
+        // this.addGsmLayer(testName);
+
+        this.addGsmLayer(gsmLayerUrl);
+
         //清空默认logo
         this.mapView.ui.components=[""];
         //在地图上加载小插件
@@ -267,36 +259,14 @@
         })
         //todo 根据点击不同的layer，展现不同的popupTemplate
 
-        // //cell弹出窗体
-        // this.cellPopupTemplate = {
-        //
-        // }
       },
-      test(){
-        //汊河变中兴宏基站-扇区1
-        let gsmNameDate = null;
-        let errInfo = null;
-        gsmNameDate = LoadShpLayer({'IndexName': this.gsmNameFind})
-        // gsmNameDate = LoadShpLayer({'IndexName': '小区8覆盖'})
-          .then(res=>{
-            let temp = res.data.obj;
-            console.log(temp);
-            this.addLayer(temp)
-          })
-          .catch(err => {errInfo = err;});
-      },
+
       // Executes each time the button is clicked
       doQuery () {
         // Clear the results from a previous query
         this.mapView.graphics.removeAll();
         this.query.where = "CellName = '" + this.gsmNameFind + "'";
 
-        //     // this.mapView.on("click",(evt)=>{
-        //     //   if(evt.button===2){
-        //     //     graphict.popupTemplate = this.functionPopupTemplate;
-        //     //   }
-        //     // })
-        //   })
         // 查询GSM
         this.queryTaskForGSM.execute(this.query).then((res) => {
           if(res.features!==0){
@@ -360,12 +330,7 @@
           })
         })
       },
-      promiseRejected (error) {
-        console.error('Promise rejected: ', error.message)
-      },
-      showGraphic () {
-        this.graphic = null
-      },
+
       eventHandler(evt){
         this.graphic = null;
         this.buildInfo = null;
@@ -479,238 +444,147 @@
       findLayer () {
         return '小区1覆盖.shp'
       },
-      addLayer (dataSourceName) {
+      addGsmLayer(gsmLayerName){
 
+
+
+        let grassRenderer = {
+          type: 'simple', // autocasts as new SimpleRenderer()
+          symbol: {
+            type: 'simple-line', // autocasts as new SimpleLineSymbol()
+            style: 'none',
+            width: 0.7,
+            color: 'green'
+          },
+          label: 'grass'
+        };
+
+        let layer = new this.apis.MapImageLayer({
+          // url: 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer',
+          // url: 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer',
+          url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer',
+          sublayers: [{
+            renderer: grassRenderer,  // renderer
+            source: {
+              type: 'data-layer',
+              dataSource: {
+                type: 'table',
+                workspaceId: '1',
+                dataSourceName: gsmLayerName
+              }
+            }
+          }]
+        });
+
+        const legend = new this.apis.Legend({
+          view: this.mapView
+        });
+
+        this.nowLegend = legend;
+        this.mapView.ui.add(legend, "bottom-right");
+        this.nowLayer = layer;
+        this.map.add(layer);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // let gsmRenderer = {
+        //   type: 'simple', // autocasts as new SimpleRenderer()
+        //   symbol: {
+        //     type: 'simple-line', // autocasts as new SimpleLineSymbol()
+        //     style: 'none',
+        //     width: 0.7,
+        //     color: 'black'
+        //   },
+        // };
+        //
+        // let layer = new this.apis.MapImageLayer({
+        //   // url: 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer',
+        //   // url: 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer',
+        //   url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer',
+        //   legendEnabled: false,
+        //   sublayers: [{
+        //     renderer: gsmRenderer,  // renderer
+        //     source: {
+        //       type: 'data-layer',
+        //       dataSource: {
+        //         type: 'table',
+        //         workspaceId: '0',
+        //         dataSourceName: gsmLayerName
+        //       }
+        //     }
+        //   }]
+        // });
+        //
+        // this.map.add(layer);
+      },
+      addLayer (dataSourceName, colorFeature) {
+
+        this.map.remove(this.nowLayer);
+        this.mapView.ui.remove(this.nowLegend);
         const color1 = {
           type: "simple-fill", // autocasts as new SimpleFillSymbol()
           color: "#0000CD",
           style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
         };
         const color2 = {
           type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#0000FF",
+          color: "#4169E1",
           style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
         };
         const color3 = {
           type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#4169E1",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-
-        const color4 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#6495ED",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color5 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
           color: "#1E90FF",
           style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
         };
-        const color6 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#00BFFF",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color7 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#00FFFF",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color8 = {
+        const color4 = {
           type: "simple-fill", // autocasts as new SimpleFillSymbol()
           color: "#40E0D0",
           style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
         };
-        const color9 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#7FFFAA",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color10 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#00FA9A",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color11 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#00FF7F",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color12 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#90EE90",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color13 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#98FB98",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color14 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#32CD32",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color15 = {
+        const color5 = {
           type: "simple-fill", // autocasts as new SimpleFillSymbol()
           color: "#00FF00",
           style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
         };
-        const color16 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#7FFF00",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color17 = {
+        const color6 = {
           type: "simple-fill", // autocasts as new SimpleFillSymbol()
           color: "#7CFC00",
           style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
         };
-        const color18 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#ADFF2F",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color19 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#FFFF00",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color20 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#FFD700",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color21 = {
+        const color7 = {
           type: "simple-fill", // autocasts as new SimpleFillSymbol()
           color: "#FFA500",
           style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
+
         };
-        const color22 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#FF8C00",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color23 = {
+        const color8 = {
           type: "simple-fill", // autocasts as new SimpleFillSymbol()
           color: "#FF7F50",
           style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
+
         };
-        const color24 = {
-          type: "simple-fill", // autocasts as new SimpleFillSymbol()
-          color: "#FF4500",
-          style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
-        };
-        const color25 = {
+        const color9 = {
           type: "simple-fill", // autocasts as new SimpleFillSymbol()
           color: "#FF0000",
           style: "solid",
-          // outline: {
-          //   width: 0.2,
-          //   color: [255, 255, 255, 0.5]
-          // }
         };
 
         const renderer = {
           type: 'class-breaks',
-          field: "RecePower",
+          field: colorFeature, // RecePower
           legendOptions: {
             title: "这是图例"
           },
@@ -722,178 +596,60 @@
           },
           classBreakInfos: [
             {
-              minValue: -200,
-              maxValue: -113,
+              minValue: -220,
+              maxValue: -120,
               symbol: color1,
-              label: "-113"
+              label: "-120"
             },
             {
-              minValue: -112,
-              maxValue: -109,
+              minValue: -119,
+              maxValue: -100,
               symbol: color2,
-              label: "-112 - -109"
-
+              label: "-119 - -100"
             },
             {
-              minValue: -108,
-              maxValue: -105,
-              symbol: color3,
-              label: "-108 - -105"
-            },
-            {
-              minValue: -105,
-              maxValue: -102,
-              symbol: color4,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -101,
-              maxValue: -99,
-              symbol: color5,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -98,
-              maxValue: -96,
-              symbol: color6,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -95,
-              maxValue: -93,
-              symbol: color7,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -92,
+              minValue: -99,
               maxValue: -90,
-              symbol: color8,
-              label: "-108 - -105"
-
+              symbol: color3,
+              label: "-99 - -90"
             },
             {
               minValue: -89,
-              maxValue: -87,
-              symbol: color9,
-              label: "-108 - -105"
-
+              maxValue: -80,
+              symbol: color4,
+              label: "-89 - -80"
             },
             {
-              minValue: -86,
-              maxValue: -84,
-              symbol: color10,
-              label: "-108 - -105"
-
+              minValue: -79,
+              maxValue: -70,
+              symbol: color5,
+              label: "-79 - -70"
             },
             {
-              minValue: -83,
-              maxValue: -81,
-              symbol: color11,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -80,
-              maxValue: -78,
-              symbol: color12,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -77,
-              maxValue: -75,
-              symbol: color13,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -74,
-              maxValue: -72,
-              symbol: color14,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -71,
-              maxValue: -69,
-              symbol: color15,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -68,
-              maxValue: -66,
-              symbol: color16,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -65,
-              maxValue: -63,
-              symbol: color17,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -62,
+              minValue: -69,
               maxValue: -60,
-              symbol: color18,
-              label: "-108 - -105"
-
+              symbol: color6,
+              label: "-69 - -60"
             },
             {
               minValue: -59,
-              maxValue: -57,
-              symbol: color19,
-              label: "-108 - -105"
-
+              maxValue: -50,
+              symbol: color7,
+              label: "-59 - -50"
             },
             {
-              minValue: -56,
-              maxValue: -54,
-              symbol: color20,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -53,
-              maxValue: -51,
-              symbol: color21,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -50,
-              maxValue: -48,
-              symbol: color22,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -48,
-              maxValue: -46,
-              symbol: color23,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -45,
-              maxValue: -43,
-              symbol: color24,
-              label: "-108 - -105"
-
-            },
-            {
-              minValue: -42,
+              minValue: -49,
               maxValue: -40,
-              symbol: color25,
-              label: "-108 - -105"
-
-            },]
+              symbol: color8,
+              label: "-59 - -40"
+            },
+            {
+              minValue: -40,
+              maxValue: -1,
+              symbol: color9,
+              label: "-40"
+            },
+          ]
         };
 
         // let grassRenderer = {
@@ -910,9 +666,9 @@
         let layer = new this.apis.MapImageLayer({
           // url: 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer',
           // url: 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer',
-          url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer',                  // 感觉这里有点问题？以后再改
+          url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer',
           sublayers: [{
-            renderer: renderer,
+            renderer: renderer,  // renderer
             source: {
               type: 'data-layer',
               dataSource: {
@@ -928,10 +684,10 @@
           view: this.mapView
         });
 
-        this.mapView.ui.add(legend, "bottom-left");
-
-        console.log(layer);
-        this.map.add(layer)
+        this.nowLegend = legend;
+        this.mapView.ui.add(legend, "bottom-right");
+        this.nowLayer = layer;
+        this.map.add(layer);
       },
 
       handleCommand(command) {
@@ -959,13 +715,24 @@
 
       showBuildingLayer()
       {
-        this.test()
+        //汊河变中兴宏基站-扇区1
+        let colorFea = 'RecePower';
+        let gsmNameDate = null;
+        let errInfo = null;
+        gsmNameDate = LoadShpLayer({'IndexName': this.gsmNameFind})
+        // gsmNameDate = LoadShpLayer({'IndexName': '小区8覆盖'})
+            .then(res=>{
+              let temp = res.data.obj;
+              console.log(temp);
+              this.addLayer(temp, colorFea)
+            })
+            .catch(err => {errInfo = err;});
       },
       showAreaLayer()
       {
         //创建点
-        let long =118.789300;
-        let lat = 32.047300;
+        let long = 118.7672780923098;
+        let lat = 32.07823890473458;
 
         //生成绘制的图形
         let graphic = new this.apis.Graphic({
@@ -983,7 +750,13 @@
         });
         // 将绘制的图形添加到view
         this.mapView.graphics.add(graphic);
-
+        this.mapView.goTo({
+              target: graphic,
+              scale: 6000
+            },
+            {
+              duration: 1000
+            });
       },
       showNetInLayer()
       {
@@ -1285,6 +1058,7 @@
         this.drawFlag = true;
 
         if (event.type === 'draw-complete'){
+          console.log(graphic);
           centerPointLat = graphic.geometry.extent.center.latitude;
           centerPointLon = graphic.geometry.extent.center.longitude;
         }
@@ -1318,11 +1092,64 @@
           this.PostAreaCover.minLatitude = Math.min(startPointLat, endPointLat);
           this.PostAreaCover.maxLongitude = Math.max(startPointLon, endPointLon);
           this.PostAreaCover.minLongitude = Math.min(startPointLon, endPointLon);
+
           console.log(this.AreaCover.maxLatitude);
           console.log(this.AreaCover.minLatitude);
           console.log(this.AreaCover.maxLongitude);
           console.log(this.AreaCover.minLongitude);
         }
+      },
+
+      roadMeasure(){
+
+        let colorFea = 'RSRP';
+        let gsmNameDate = null;
+        let errInfo = null;
+        let LoadName = 'TD路测';
+        gsmNameDate = LoadShpLayer({'IndexName': LoadName})
+            .then(res=>{
+              let temp = res.data.obj;
+              console.log(temp);
+              this.addLayer(temp, colorFea)
+            })
+            .catch(err => {errInfo = err;});
+
+        let pt = new this.apis.Point({
+          latitude: 32.07823890473458,
+          longitude: 118.7672780923098
+        });
+
+        this.mapView.goTo({
+              target: pt,
+              scale: 6000
+            },
+            {
+              duration: 1000
+            });
+      },
+      reverTrace(){
+        let colorFea = 'receivePW';
+        let gsmNameDate = null;
+        let errInfo = null;
+        let LoadName = '反向跟踪点';
+        gsmNameDate = LoadShpLayer({'IndexName': LoadName})
+            .then(res=>{
+              let temp = res.data.obj;
+              console.log(temp);
+              this.addLayer(temp, colorFea)
+            })
+            .catch(err => {errInfo = err;});
+        let pt = new this.apis.Point({
+          latitude: 32.07823890473458,
+          longitude: 118.7672780923098
+        });
+        this.mapView.goTo({
+              target: pt,
+              scale: 6000
+            },
+            {
+              duration: 1000
+            });
       },
       jumpProgress(){
         let routeUrl = this.$router.resolve({
