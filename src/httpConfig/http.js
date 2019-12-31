@@ -32,7 +32,7 @@ axios.interceptors.response.use(data => {
     }*/
     else {
       //code为1时表示请求成功
-      Message.success({message: data.data.msg});
+      // Message.success({message: data.data.msg});      // 阻止全局弹出请求成功，手动添加
     }
   }
   // if (data.status && data.status === 200 && data.data.ok === false) {
