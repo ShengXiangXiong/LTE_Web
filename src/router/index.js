@@ -10,7 +10,10 @@ import GridDivision from '../components/sceneModeling/GridDivision'
 import ExtraInterferenceLoc from '../components/extraInterferenceLoc/ExtraInterferenceLoc'
 import InterferenceRayRecord from '../components/extraInterferenceLoc/InterferenceRayRecord'
 import InternalInterferenceAnalysis from '../components/internalInterferenceAnalysis/InternalInterferenceAnalysis'
-import taskProgress from "../components/toolComponents/taskProgress"
+import taskProgress from '../components/toolComponents/taskProgress'
+import AreaCoverageComputation from '../components/coverageCompute/AreaCoverageComputation'
+import AreaCoverageLayerRefresh from '../components/coverageCompute/AreaCoverageLayerRefresh'
+import CellCoverageLayerRefresh from '../components/coverageCompute/CellCoverageLayerRefresh'
 
 Vue.use(Router)
 
@@ -39,6 +42,9 @@ export default new Router({
       component: index,
       children: [
         {path: 'CellRayTracing', component: CellRayTracing},
+        {path: 'CellCoverageLayerRefresh', component: CellCoverageLayerRefresh},
+        {path: 'AreaCoverageComputation', component: AreaCoverageComputation},
+        {path: 'AreaCoverageLayerRefresh', component: AreaCoverageLayerRefresh},
         {path: 'CoefficientCorrection', component: CoefficientCorrection},
         {path: 'RayRecord', component: RayRecord},
         {path: 'ExtraInterferenceLoc', component: ExtraInterferenceLoc},

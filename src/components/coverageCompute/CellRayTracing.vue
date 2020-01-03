@@ -19,13 +19,6 @@
          </el-form-item>
 
          <div class="sub_title_css">
-           多线程参数
-         </div>
-         <el-form-item label="线程个数" prop="threadNum">
-           <el-input v-model="ruleForm.threadNum"></el-input>
-         </el-form-item>
-
-         <div class="sub_title_css">
            射线跟踪控制参数
          </div>
          <el-form-item label="反射次数" prop="reflectionNum">
@@ -39,22 +32,6 @@
          </el-form-item>
          <el-checkbox v-model="ruleForm.computeIndoor">计算立体覆盖</el-checkbox>
          <el-checkbox v-model="ruleForm.computeDiffrac">计算绕射</el-checkbox>
-
-         <div class="sub_title_css">
-           校正系数
-         </div>
-         <el-form-item label="直射校正系数" prop="directCoeff">
-           <el-input v-model="ruleForm.directCoeff"></el-input>
-         </el-form-item>
-         <el-form-item label="反射校正系数" prop="reflectCoeff">
-           <el-input v-model="ruleForm.reflectCoeff"></el-input>
-         </el-form-item>
-         <el-form-item label="绕射校正系数" prop="diffractCoeff">
-           <el-input v-model="ruleForm.diffractCoeff"></el-input>
-         </el-form-item>
-         <el-form-item label="菲涅尔绕射校正系数" prop="diffractCoeff2">
-           <el-input v-model="ruleForm.diffractCoeff2"></el-input>
-         </el-form-item>
 
          <!--<div class="sub_title_css">
            手动指定范围(可选)
@@ -82,7 +59,7 @@
            <el-form-item>
              <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
              <el-button @click="resetForm('ruleForm')">重置</el-button>
-             <el-button type="primary" @click="refreshGround">图层显示</el-button>
+             <el-button type="primary" @click="refreshGround">图层刷新</el-button>
            </el-form-item>
          </div>
        </el-form>
@@ -90,9 +67,8 @@
   </div>
 </template>
 <script>
-  import {coverageCompute} from '@/httpConfig/api'
-  import {getInfo} from '@/httpConfig/api'
-  import {postRefreshCellGroundCover} from '@/httpConfig/api'
+  import {coverageCompute, postRefreshCellGroundCover} from '@/httpConfig/api'
+
   export default {
 
     name: 'CellRayTracing',
@@ -104,8 +80,8 @@
         ruleForm: {
           cellName: '汊河变中兴宏基站-扇区1',
           distance: '1000',
-          incrementAngle: '65',
-          threadNum: '3',
+          incrementAngle: '70',
+          threadNum: '6',
           reflectionNum: '3',
           diffractionNum: '2',
           diffPointsMargin: '3',
@@ -138,9 +114,6 @@
               trigger: 'blur'
             }
           ],
-          threadNum: [
-            {required: true, message: '请填写线程个数', trigger: 'blur'}
-          ],
           reflectionNum: [
             {required: true, message: '请填写反射次数', trigger: 'blur'}
           ],
@@ -150,18 +123,6 @@
           diffPointsMargin: [
             {required: true, message: '请填写建筑物棱边绕射点间隔', trigger: 'blur'}
           ],
-          directCoeff: [
-            {required: true, message: '请填写直射校正系数', trigger: 'blur'}
-          ],
-          reflectCoeff: [
-            {required: true, message: '请填写反射校正系数', trigger: 'blur'}
-          ],
-          diffractCoeff: [
-            {required: true, message: '请填写绕射校正系数', trigger: 'blur'}
-          ],
-          diffractCoeff2: [
-            {required: true, message: '请填写菲涅尔绕射校正系数', trigger: 'blur'}
-          ]
         }
       }
     },
@@ -196,6 +157,7 @@
           console.log(response);
         }).catch((error) => {
           console.log(error);});
+        this.jumpProgress()
       },
       resetForm (formName) {
         // this.$refs[formName].resetFields()

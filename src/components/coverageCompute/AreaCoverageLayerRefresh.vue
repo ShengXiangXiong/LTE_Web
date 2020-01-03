@@ -1,51 +1,51 @@
 <template>
   <div>
     <div class="floatPage">
-      <div class="title_css">
-        网内干扰分析
-      </div>
-      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="170px">
 
-        <el-form-item label="最小经度" prop="minLongitude">
-          <el-input v-model="ruleForm.minLongitude"></el-input>
-        </el-form-item>
-        <el-form-item label="最小纬度" prop="minLatitude">
-          <el-input v-model="ruleForm.minLatitude"></el-input>
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="170px">
+        <div class="sub_title_css">
+          区域范围
+        </div>
+        <el-form-item label="最大纬度" prop="maxLatitude">
+          <el-input v-model="ruleForm.maxLatitude"></el-input>
         </el-form-item>
         <el-form-item label="最大经度" prop="maxLongitude">
           <el-input v-model="ruleForm.maxLongitude"></el-input>
         </el-form-item>
-        <el-form-item label="最大纬度" prop="maxLatitude">
-          <el-input v-model="ruleForm.maxLatitude"></el-input>
+        <el-form-item label="最小纬度" prop="minLatitude">
+          <el-input v-model="ruleForm.minLatitude"></el-input>
+        </el-form-item>
+        <el-form-item label="最小经度" prop="minLongitude">
+          <el-input v-model="ruleForm.minLongitude"></el-input>
         </el-form-item>
 
         <div class="sub_css">
           <el-form-item>
-            <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
+            <el-button type="primary" @click="submitForm('ruleForm')">区域图层刷新</el-button>
             <el-button @click="resetForm('ruleForm')">重置</el-button>
           </el-form-item>
         </div>
-
       </el-form>
     </div>
   </div>
 </template>
+
 <script>
-  import {PostAreaCoverDefect} from '@/httpConfig/api'
+  import {PostRefreshArea3DCover, PostRefreshAreaGroundCover} from '@/httpConfig/api'
 
   export default {
-    name: 'InternalInterferenceAnalysis',
+    name: 'AreaCoverageLayerRefresh',
     data () {
       return {
         ruleForm: {
-          minLongitude: '118.765631',
-          minLatitude: '32.048720',
-          maxLongitude: '118.781845',
-          maxLatitude: '32.065631'
+          maxLatitude: 32.258000,
+          minLatitude: 32.257300,
+          maxLongitude: 118.749300,
+          minLongitude: 118.749250,
         },
         rules: {
-          minLongitude: [
-            {required: true, message: '请输入最小经度', trigger: 'blur'}
+          maxLatitude: [
+            {required: true, message: '请输入最大纬度', trigger: 'blur'}
           ],
           minLatitude: [
             {required: true, message: '请输入最小纬度', trigger: 'blur'}
@@ -53,9 +53,9 @@
           maxLongitude: [
             {required: true, message: '请输入最大经度', trigger: 'blur'}
           ],
-          maxLatitude: [
-            {required: true, message: '请输入最大纬度', trigger: 'blur'}
-          ]
+          minLongitude: [
+            {required: true, message: '请输入最小经度', trigger: 'blur'}
+          ],
         }
       }
     },
@@ -63,20 +63,27 @@
       submitForm (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            PostAreaCoverDefect(this.ruleForm).catch(err => {
+            PostRefreshAreaGroundCover(this.ruleForm).catch(err => {
+              errInfo = err
+            })
+              .then(response => {
+                if (response && response.data.ok) {
+                  // this.jumpProgress();
+                }
+              })
+            PostRefreshArea3DCover(this.ruleForm).catch(err => {
               errInfo = err
             })
               .then(response => {
                 if (response && response.data.ok) {
                   this.jumpProgress()
                 }
-              });
+              })
             this.$message.success({message: '任务提交成功!'})
-            this.jumpProgress()
           } else {
             this.$message.error({
               message: 'submit fail'
-            });
+            })
             return false
           }
         })
@@ -88,7 +95,8 @@
         window.open(routeUrl.href, '_blank')
       },
       resetForm (formName) {
-        this.$refs[formName].resetFields()
+        // this.$refs[formName].resetFields()
+        this.jumpProgress()
       }
     }
   }
@@ -122,4 +130,6 @@
   .title_css {
     font-size: 20px;
     padding-bottom: 20px;
-  }</style>
+  }
+</style>
+

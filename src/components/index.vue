@@ -28,8 +28,10 @@
 
         <el-submenu index="6">
           <template slot="title"><div class="el-icon-menu"></div>覆盖计算</template>
-          <el-menu-item index="/index/CellRayTracing">小区覆盖图层</el-menu-item>
-          <el-menu-item index="8-3">区域覆盖图层</el-menu-item>
+          <el-menu-item index="/index/CellRayTracing">小区覆盖计算</el-menu-item>
+          <el-menu-item index="/index/CellCoverageLayerRefresh">小区覆盖图层刷新</el-menu-item>
+          <el-menu-item index="/index/AreaCoverageComputation">区域覆盖计算</el-menu-item>
+          <el-menu-item index="/index/AreaCoverageLayerRefresh">区域覆盖图层刷新</el-menu-item>
         </el-submenu>
 
         <el-submenu index="7">

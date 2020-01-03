@@ -62,11 +62,9 @@
   import Index from '../index'
   import load_esri from '../../utils/map_load_tool'
   import esriLoader from 'esri-loader'
-  import {LoadShpLayer} from '@/httpConfig/api'
-  import {AreaCoverAnalysis} from '@/httpConfig/api'
-  import {PostAreaCoverDefect} from '@/httpConfig/api'
+  import {AreaCoverAnalysis, LoadShpLayer, PostAreaCoverDefect} from '@/httpConfig/api'
 
-    export default {
+  export default {
     name: "planeMap",
     components: {Index},
     data(){
@@ -101,6 +99,7 @@
         message: 'aa',
         apis: null,
         buildInfo:null,
+        gsmInfo: null,
         map:null,
         query:null,
         queryTaskForBuilding: null,
@@ -108,7 +107,7 @@
         mapImage:null,
         mapView:null,
         buildingPopupTemplate:null,
-        cellPopupTemplate:null,
+        gsmPopupTemplate: null,
         functionPopupTemplate:null,
         graphic: null,
         gsmNameFind: '汊河变中兴宏基站-扇区1',
@@ -137,9 +136,9 @@
           proxyUrl: "http://10.103.252.26:80/DotNet/proxy.ashx"   //代理部署地址
         });
 
-        let mapUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer';
-        let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer/1';
-        let gsmLayerUrl = '小区.shp';
+        let mapUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer'
+        let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0'
+        let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0'
         let testName = '小区8覆盖.shp';
         this.map = new apis.map();
         this.mapImage = new apis.TileLayer({
@@ -155,7 +154,7 @@
         });
         // this.addGsmLayer(testName);
 
-        this.addGsmLayer(gsmLayerUrl);
+        this.addGsmLayer('小区.shp')
 
         //清空默认logo
         this.mapView.ui.components=[""];
@@ -238,6 +237,48 @@
           }]
           // fieldInfos:["*"],
         };
+        //building弹出窗体
+
+        this.gsmPopupTemplate = {
+          title: 'The information of this selected gsm',
+          content: [{
+            type: 'fields',
+            fieldInfos: [{
+              fieldName: 'eNodeB',
+              // label:"FID",
+              visible: true,
+            }, {
+              fieldName: 'CI',
+              // label:"Bid",
+              visible: true,
+            }, {
+              fieldName: 'CellName',
+              visible: true,
+            }, {
+              fieldName: 'Longitude',
+              visible: true,
+            }, {
+              fieldName: 'Latitude',
+              visible: true,
+            }, {
+              fieldName: 'Radius',
+              visible: true,
+            }, {
+              fieldName: 'EARFCN',
+              visible: true,
+            }, {
+              fieldName: 'EIRP',
+              visible: true,
+            }, {
+              fieldName: 'Tilt',
+              visible: true,
+            }, {
+              fieldName: 'Azimuth',
+              visible: true,
+            }]
+          }]
+          // fieldInfos:["*"],
+        }
         //功能项弹出窗体
         let coverLayerAction = {
           title: '查看覆盖图层',
@@ -266,15 +307,15 @@
         // Clear the results from a previous query
         this.mapView.graphics.removeAll();
         this.query.where = "CellName = '" + this.gsmNameFind + "'";
-
+        console.log(this.query.where)
         // 查询GSM
         this.queryTaskForGSM.execute(this.query).then((res) => {
           if(res.features!==0){
             //解析attributes
             let featureArray = res.features;
             let graphict = featureArray[0];
-
-            this.buildInfo = graphict.attributes;
+            console.log(res)
+            this.gsmInfo = graphict.attributes
             graphict.symbol = {
               type: "simple-line",
               color: [226, 119, 40],
@@ -297,7 +338,7 @@
                     duration: 2000
                   });
               //左键将查询到的graphic绑定定义好的template
-              graphict.popupTemplate = this.buildingPopupTemplate;
+              graphict.popupTemplate = this.gsmPopupTemplate
             })
             .catch(error=>{
               console.log("error = ", error);
@@ -345,6 +386,40 @@
 
 
         this.query.outSpatialReference = this.mapView.spatialReference;
+
+        this.queryTaskForGSM.execute(this.query).then((res) => {
+          // this.queryTaskForGSM.execute(this.query).then((res) => {
+          if (res.features !== 0) {
+            //解析attributes
+            let featureArray = res.features
+            let graphic = featureArray[0]
+            graphic.attributes['Longitude'] = lon
+            graphic.attributes['Latitude'] = lat
+            this.buildInfo = graphic.attributes
+            graphic.symbol = {
+              type: 'simple-line',
+              color: [226, 119, 40],
+            }
+            //再次点击时，就相当于点击这个graphic，那么就会自动呈现template
+            this.mapView.graphics.add(graphic)
+            this.graphic = graphic
+            return graphic
+          }
+        })
+          .then((graphic) => {
+            if (graphic == null) {
+              return
+            }
+            this.mapView.on('click', (evt) => {
+              if (evt.button === 2) {
+                //右键显示功能选项框
+                graphic.popupTemplate = this.functionPopupTemplate
+              } else if (evt.button === 0) {
+                //左键将查询到的graphic绑定定义好的template
+                graphic.popupTemplate = this.gsmPopupTemplate
+              }
+            })
+          })
 
         this.queryTaskForBuilding.execute(this.query).then((res) => {
         // this.queryTaskForGSM.execute(this.query).then((res) => {
@@ -454,7 +529,7 @@
             type: 'simple-line', // autocasts as new SimpleLineSymbol()
             style: 'none',
             width: 0.7,
-            color: 'green'
+            color: 'black'
           },
           label: 'grass'
         };
