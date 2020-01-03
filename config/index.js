@@ -22,7 +22,8 @@ module.exports = {
 
         pathReWrite:{
           '^/api':'/api'
-        }
+        },
+        timeout: 3600000
       },
       /*
       将arcgis相关的请求转发到gis server服务器上

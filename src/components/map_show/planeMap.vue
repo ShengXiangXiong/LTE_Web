@@ -137,8 +137,7 @@
         });
 
         let mapUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer';
-        let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0';
-        let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0';
+
         let testName = '小区8覆盖.shp';
         this.map = new apis.map();
         this.mapImage = new apis.TileLayer({
@@ -169,12 +168,12 @@
         this.mapView.ui.add("circle-button", "top-left");//添加绘制面按钮，自定义UI
         this.mapView.ui.add("rectangle-button", "top-left");//添加绘制面按钮，自定义UI
 
-        //创建查询对象
-        this.query = new this.apis.Query();
-        this.query.outFields = ["*"];//返回所有查询的属性
-        this.query.returnGeometry = true;
-        this.queryTaskForBuilding = new this.apis.QueryTask(buildingLayerUrl);
-        this.queryTaskForGSM = new this.apis.QueryTask(gsmLayerUrl);
+        // //创建查询对象
+        // this.query = new this.apis.Query();
+        // this.query.outFields = ["*"];//返回所有查询的属性
+        // this.query.returnGeometry = true;
+        // this.queryTaskForBuilding = new this.apis.QueryTask(buildingLayerUrl);
+        // this.queryTaskForGSM = new this.apis.QueryTask(gsmLayerUrl);
 
         this.mapView.on('click', this.eventHandler);
         //给地图绑定点击监听事件
@@ -278,13 +277,13 @@
             }]
           }]
           // fieldInfos:["*"],
-        }
+        };
         //功能项弹出窗体
         let coverLayerAction = {
           title: '查看覆盖图层',
           id: 'findCoverLayer',
         };
-        let task = '<a href="http://www.w3school.com.cn">小区覆盖计算</a>'
+        let task = '<a href="http://www.w3school.com.cn">小区覆盖计算</a>';
         this.functionPopupTemplate = {
           title:"The executing task for this selected building",
           content: task,
@@ -304,18 +303,26 @@
 
       // Executes each time the button is clicked
       doQuery () {
-        // Clear the results from a previous query
+        let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0';
+        //创建查询对象
+        this.query = new this.apis.Query();
+        this.query.outFields = ["*"];//返回所有查询的属性
+        this.query.returnGeometry = true;
+        this.queryTaskForGSM = new this.apis.QueryTask(gsmLayerUrl);
+
         this.mapView.graphics.removeAll();
         this.query.where = "CellName = '" + this.gsmNameFind + "'";
-        console.log(this.query.where)
+        console.log(this.query.where);
         // 查询GSM
         this.queryTaskForGSM.execute(this.query).then((res) => {
+          console.log('查询地点');
+          console.log(res);
           if(res.features!==0){
             //解析attributes
             let featureArray = res.features;
             let graphict = featureArray[0];
-            console.log(res)
-            this.gsmInfo = graphict.attributes
+            console.log(res);
+            this.gsmInfo = graphict.attributes;
             graphict.symbol = {
               type: "simple-line",
               color: [226, 119, 40],
@@ -375,6 +382,13 @@
       eventHandler(evt){
         this.graphic = null;
         this.buildInfo = null;
+        let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0';
+        //创建查询对象
+        this.query = new this.apis.Query();
+        this.query.outFields = ["*"];//返回所有查询的属性
+        this.query.returnGeometry = true;
+        this.queryTaskForBuilding = new this.apis.QueryTask(buildingLayerUrl);
+
         if (!this.drawFlag){
           this.mapView.graphics.removeAll();//clear currently displayed results
         }
@@ -383,46 +397,9 @@
         this.query.geometry = point;//获取地图点击的点，得到geometry区域
         let lat = point.latitude;
         let lon = point.longitude;
-
-
         this.query.outSpatialReference = this.mapView.spatialReference;
 
-        this.queryTaskForGSM.execute(this.query).then((res) => {
-          // this.queryTaskForGSM.execute(this.query).then((res) => {
-          if (res.features !== 0) {
-            //解析attributes
-            let featureArray = res.features
-            let graphic = featureArray[0]
-            graphic.attributes['Longitude'] = lon
-            graphic.attributes['Latitude'] = lat
-            this.buildInfo = graphic.attributes
-            graphic.symbol = {
-              type: 'simple-line',
-              color: [226, 119, 40],
-            }
-            //再次点击时，就相当于点击这个graphic，那么就会自动呈现template
-            this.mapView.graphics.add(graphic)
-            this.graphic = graphic
-            return graphic
-          }
-        })
-          .then((graphic) => {
-            if (graphic == null) {
-              return
-            }
-            this.mapView.on('click', (evt) => {
-              if (evt.button === 2) {
-                //右键显示功能选项框
-                graphic.popupTemplate = this.functionPopupTemplate
-              } else if (evt.button === 0) {
-                //左键将查询到的graphic绑定定义好的template
-                graphic.popupTemplate = this.gsmPopupTemplate
-              }
-            })
-          })
-
         this.queryTaskForBuilding.execute(this.query).then((res) => {
-        // this.queryTaskForGSM.execute(this.query).then((res) => {
           if(res.features!==0){
             //解析attributes
             let featureArray = res.features;
@@ -457,7 +434,7 @@
           })
       },
       clickHandler (evt) {
-        console.log(this.mapView.graphics)
+        console.log(this.mapView.graphics);
         if(this.graphic == null && this.mapView.graphics.length === 0) {
           console.log('data is not received')
         }else{

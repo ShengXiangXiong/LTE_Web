@@ -21,24 +21,24 @@ import {PostFishnet} from '@/httpConfig/api'
         methods: {
             submitForm() {
                 console.log("test..........................");
-                PostFishnet()
+                PostFishnet().catch(err => {
+                  console.log('捕获');
+                  errInfo = err;
+                  // this.$message.success({message: '连接错误!'})
+                });
                 this.$message.success({message: '渔网任务提交成功!'})
-                  /*  .then(response => {
-                         console.log(response);
-                        if (response && response.data.ok) {
-                            this.jumpProgress();
-                            this.$message.success({message: '渔网任务提交成功!'})
-                         //   this.$router.push({path: '/index'})
-                        } else {
-                            this.$message.success({message: '渔网任务提交失败!'})
-                       //     this.$router.push({path: '/index'})
-                        }
-                    })
-                   .catch(err => {
-                       console.log('捕获');
-                       errInfo = err;
-                       // this.$message.success({message: '连接错误!'})
-                   });*/
+                    // .then(response => {
+                    //      console.log(response);
+                    //     if (response && response.data.ok) {
+                    //         this.jumpProgress();
+                    //         this.$message.success({message: '渔网任务提交成功!'})
+                    //      //   this.$router.push({path: '/index'})
+                    //     } else {
+                    //         this.$message.success({message: '渔网任务提交失败!'})
+                    //    //     this.$router.push({path: '/index'})
+                    //     }
+                    // })
+
             },
             jumpProgress() {
                 let routeUrl = this.$router.resolve({

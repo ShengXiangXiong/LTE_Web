@@ -21,9 +21,11 @@
         <el-submenu index="5">
           <template slot="title"><div class="el-icon-menu"></div>场景建模</template>
           <el-menu-item index="/index/GridDivision">网格划分</el-menu-item>
+          <el-menu-item index="/index/Fishnet">渔网生成</el-menu-item>
+          <el-menu-item index="/index/Overlay">叠加分析</el-menu-item>
+          <el-menu-item index="/index/ScenePart">场景划分</el-menu-item>
           <el-menu-item index="5-2">建筑物底边平滑</el-menu-item>
           <el-menu-item index="5-2">小区理论覆盖半径计算</el-menu-item>
-          <el-menu-item index="5-2">场景划分</el-menu-item>
         </el-submenu>
 
         <el-submenu index="6">

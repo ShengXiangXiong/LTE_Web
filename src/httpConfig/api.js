@@ -35,4 +35,10 @@ export const PostRefreshPCImod3Layer = (params) => axios.post('api/RefreshLayer/
 export const AreaCoverAnalysis = (params) => axios.post('api/AreaCoverAnalysis/Post', params);
 export const PostAreaCoverDefect = (params) => axios.post('api/AreaCoverDefect/PostAreaCoverDefect', params);
 
-
+export const PostFishnet = () => axios.post('api/Fishnet/PostFishnet');
+export const PostBuildingOverlay = (params) => axios.post('api/Overlay/PostBuildingOverlay', params);
+export const PostWaterOverlay = (params) => axios.post('api/Overlay/PostWaterOverlay', params);
+export const PostGrassOverlay = (params) => axios.post('api/Overlay/PostGrassOverlay', params);
+export const PostScenePart = (params) => axios.post('api/ScenePart/PostScenePart', params);
+export const PostClusterShp = (params) => axios.post('api/ScenePart/PostClusterShp', params);
+export const PostAdjCoefficient = (params) => axios.post('api/ScenePart/PostAdjCoefficient', params);
