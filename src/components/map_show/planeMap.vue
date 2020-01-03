@@ -136,9 +136,9 @@
           proxyUrl: "http://10.103.252.26:80/DotNet/proxy.ashx"   //代理部署地址
         });
 
-        let mapUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer'
-        let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0'
-        let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0'
+        let mapUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer';
+        let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0';
+        let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0';
         let testName = '小区8覆盖.shp';
         this.map = new apis.map();
         this.mapImage = new apis.TileLayer({
