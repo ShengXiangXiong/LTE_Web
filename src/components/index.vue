@@ -39,7 +39,7 @@
         <el-submenu index="7">
           <template slot="title"><div class="el-icon-menu"></div>网内干扰分析</template>
           <el-menu-item index="/index/InternalInterferenceAnalysis">网内干扰分析</el-menu-item>
-          <el-menu-item index="8-3">网内干扰图层</el-menu-item>
+          <el-menu-item index="/index/InternalInterferenceLayerRefresh">网内干扰图层刷新</el-menu-item>
         </el-submenu>
 
         <el-submenu index="8">

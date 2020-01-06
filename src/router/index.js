@@ -14,6 +14,8 @@ import taskProgress from '../components/toolComponents/taskProgress'
 import AreaCoverageComputation from '../components/coverageCompute/AreaCoverageComputation'
 import AreaCoverageLayerRefresh from '../components/coverageCompute/AreaCoverageLayerRefresh'
 import CellCoverageLayerRefresh from '../components/coverageCompute/CellCoverageLayerRefresh'
+import InternalInterferenceLayerRefresh
+  from '../components/internalInterferenceAnalysis/InternalInterferenceLayerRefresh'
 import Fishnet from '../components/sceneModeling/Fishnet'
 import Overlay from '../components/sceneModeling/Overlay'
 import ScenePart from '../components/sceneModeling/ScenePart'
@@ -54,10 +56,11 @@ export default new Router({
         {path: 'InterferenceRayRecord', component: InterferenceRayRecord},
         {path: 'GridDivision', component: GridDivision},
         {path: 'InternalInterferenceAnalysis', component: InternalInterferenceAnalysis},
+        {path: 'InternalInterferenceLayerRefresh', component: InternalInterferenceLayerRefresh},
         {path: 'taskProgress', component: taskProgress},
-        {path: 'Fishnet',component: Fishnet},
-        {path: 'Overlay',component: Overlay},
-        {path: 'ScenePart',component: ScenePart}
+        {path: 'Fishnet', component: Fishnet},
+        {path: 'Overlay', component: Overlay},
+        {path: 'ScenePart', component: ScenePart}
       ]
     },
     {

@@ -50,10 +50,10 @@
             })
               .then(response => {
                 if (response && response.data.ok) {
-                  this.jumpProgress()
+                  // this.jumpProgress()
                 }
               })
-
+            this.jumpProgress()
             this.$message.success({message: '任务提交成功!'})
 
           } else {
