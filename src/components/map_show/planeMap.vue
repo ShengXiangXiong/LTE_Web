@@ -24,17 +24,45 @@
         </div>
 
 
-
-          <el-col>
-            <el-input type="text"
-              v-model="gsmNameFind"
-              auto-complete="off"
-              placeholder="请输入"
+        <el-col>
+          <el-input type="text"
+                    v-model="gsmNameFind"
+                    auto-complete="off"
+                    placeholder="请输入"
           ></el-input>
         </el-col>
-        <el-col> <el-button class="esri-widget" id="doBtn" @click="doQuery" icon="el-icon-search" type="primary" size="small">查询</el-button></el-col>
-        <el-col> <el-button class="esri-widget" id="doBtn1" @click="roadMeasure" icon="el-icon-search" type="primary" size="small">路测</el-button></el-col>
-        <el-col> <el-button class="esri-widget" id="doBtn2" @click="reverTrace" icon="el-icon-search" type="primary" size="small">反向跟踪</el-button></el-col>
+        <el-col>
+          <el-button class="esri-widget" id="doBtn" @click="doQuery" icon="el-icon-search" type="primary" size="small">
+            查询
+          </el-button>
+        </el-col>
+        <el-col>
+          <el-button class="esri-widget" id="doBtn1" @click="roadMeasure" icon="el-icon-search" type="primary"
+                     size="small">路测
+          </el-button>
+        </el-col>
+        <el-col>
+          <el-button class="esri-widget" id="doBtn2" @click="reverTrace" icon="el-icon-search" type="primary"
+                     size="small">反向跟踪
+          </el-button>
+        </el-col>
+        <el-col>
+          <el-button class="esri-widget" id="doBtn3" @click="fixTerminal" icon="el-icon-search" type="primary"
+                     size="small">固定终端
+          </el-button>
+        </el-col>
+
+        <el-dropdown @command="handleCommand">
+          <el-button type="primary" class="esri-widget">
+            图层刷新<i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="gsmLayer">基站图层刷新</el-dropdown-item>
+            <el-dropdown-item command="fixTerminalLayer">终端图层刷新</el-dropdown-item>
+            <el-dropdown-item command="buildingLayer">建筑物图层刷新</el-dropdown-item>
+            <el-dropdown-item command="tinLayer">地形图层刷新</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
 
         <el-dropdown @command="handleCommand">
           <el-button type="primary" class="esri-widget">
@@ -62,7 +90,7 @@
   import Index from '../index'
   import load_esri from '../../utils/map_load_tool'
   import esriLoader from 'esri-loader'
-  import {AreaCoverAnalysis, LoadShpLayer, PostAreaCoverDefect} from '@/httpConfig/api'
+  import {AreaCoverAnalysis, LoadShpLayer, PostAreaCoverDefect, PostFixTerminalLayer} from '@/httpConfig/api'
 
   export default {
     name: "planeMap",
@@ -154,7 +182,7 @@
         });
         // this.addGsmLayer(testName);
 
-        this.addGsmLayer('小区.shp')
+        this.addGsmLayer('小区.shp', 'black')
 
         //清空默认logo
         this.mapView.ui.components=[""];
@@ -533,25 +561,21 @@
       findLayer () {
         return '小区1覆盖.shp'
       },
-      addGsmLayer(gsmLayerName){
-
-
-
+      addGsmLayer (gsmLayerName, color) {
         let grassRenderer = {
           type: 'simple', // autocasts as new SimpleRenderer()
           symbol: {
-            type: 'simple-line', // autocasts as new SimpleLineSymbol()
-            style: 'none',
-            width: 0.7,
-            color: 'black'
+            type: 'simple-fill', // autocasts as new SimpleLineSymbol()
+            style: 'solid',
+            color: color
           },
           label: 'grass'
-        };
+        }
 
         let layer = new this.apis.MapImageLayer({
-          // url: 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer',
           // url: 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer',
-          url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer',
+          // url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer',
+          url: 'http://localhost:6080/arcgis/rest/services/LTE/MapServer',
           sublayers: [{
             renderer: grassRenderer,  // renderer
             source: {
@@ -792,13 +816,22 @@
         {
           this.showNetInLayer()
         }
-        if (command === 'showNetOutLayer')
-        {
+        if (command === 'showNetOutLayer') {
           this.showNetOutLayer()
         }
-        if (command === 'showVirtualLayer')
-        {
+        if (command === 'showVirtualLayer') {
           this.showVirtualLayer()
+        }
+        if (command === 'fixTerminalLayer') {
+          PostFixTerminalLayer().catch(err => {
+            errInfo = err
+          })
+            .then(response => {
+              if (response && response.data.ok) {
+                this.$message.success({message: '刷新成功！'})
+              }
+            })
+
         }
       },
 
@@ -1233,18 +1266,43 @@
           longitude: 118.7672780923098
         });
         this.mapView.goTo({
-              target: pt,
-              scale: 6000
-            },
-            {
-              duration: 1000
-            });
+            target: pt,
+            scale: 6000
+          },
+          {
+            duration: 1000
+          })
       },
-      jumpProgress(){
+      fixTerminal () {
+        let gsmNameDate = null
+        let errInfo = null
+        let LoadName = '固定终端'
+        gsmNameDate = LoadShpLayer({'IndexName': LoadName})
+          .then(res => {
+            let temp = res.data.obj
+            console.log(temp)
+            this.addGsmLayer(temp, '#a6ff02')
+          })
+          .catch(err => {
+            errInfo = err
+          })
+        let pt = new this.apis.Point({
+          latitude: 32.07823890473458,
+          longitude: 118.7672780923098
+        })
+        this.mapView.goTo({
+            target: pt,
+            scale: 6000
+          },
+          {
+            duration: 1000
+          })
+      },
+      jumpProgress () {
         let routeUrl = this.$router.resolve({
-          path: "/index/taskProgress",
-        });
-        window.open(routeUrl.href, '_blank');
+          path: '/index/taskProgress',
+        })
+        window.open(routeUrl.href, '_blank')
       },
     }
   };

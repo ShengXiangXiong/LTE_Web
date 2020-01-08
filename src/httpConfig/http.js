@@ -10,7 +10,7 @@ axios.defaults.transformRequest = [
 axios.interceptors.request.use(config => {
   config.headers['Content-Type'] = 'application/json;charset=UTF-8';
   config.headers['auth'] = window.localStorage.getItem('token')
-  config.timeout = 1000 * 60 * 60 * 60
+  // config.timeout = 1000 * 60 * 60 * 60*60*60*60
   return config;
 }, err => {
   Message.error({message: '请求超时!' + err})

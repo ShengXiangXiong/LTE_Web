@@ -3,16 +3,14 @@
  */
 import axios from 'axios'
 import {Message} from 'element-ui'
-// import Qs from 'qs'
-
 import cookie from '../../static/js/cookie.js'
+// import Qs from 'qs'
 
 // axios默认配置
 const apiTestURL = "http://localhost:10001";
 
-
 // axios.baseURL = apiTestURL;
-axios.timeout = 10000
+// axios.timeout = 10000
 
 // const service = axios.create({
 //   baseURL: apiTestURL,  // api的base_url

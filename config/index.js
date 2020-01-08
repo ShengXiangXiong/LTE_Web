@@ -15,15 +15,15 @@ module.exports = {
       将api的请求转发到业务服务器上
        */
       '/api':{
-        target:'http://10.103.252.26:8001/',
-        // target: 'http://localhost:3298/',
+        // target:'http://10.103.252.26:8001/',
+        target: 'http://localhost:3298/',
         // secure: false, // 如果是https接口，需要配置这个参数
-        changeOrigin:true,
+        changeOrigin: true,
 
-        pathReWrite:{
-          '^/api':'/api'
+        pathReWrite: {
+          '^/api': '/api'
         },
-        timeout: 3600000
+        timeout: 360000000
       },
       /*
       将arcgis相关的请求转发到gis server服务器上
