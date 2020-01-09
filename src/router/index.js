@@ -14,11 +14,14 @@ import taskProgress from '../components/toolComponents/taskProgress'
 import AreaCoverageComputation from '../components/coverageCompute/AreaCoverageComputation'
 import AreaCoverageLayerRefresh from '../components/coverageCompute/AreaCoverageLayerRefresh'
 import CellCoverageLayerRefresh from '../components/coverageCompute/CellCoverageLayerRefresh'
-import InternalInterferenceLayerRefresh
-  from '../components/internalInterferenceAnalysis/InternalInterferenceLayerRefresh'
+import InternalInterferenceLayerRefresh from '../components/internalInterferenceAnalysis/InternalInterferenceLayerRefresh'
 import Fishnet from '../components/sceneModeling/Fishnet'
 import Overlay from '../components/sceneModeling/Overlay'
 import ScenePart from '../components/sceneModeling/ScenePart'
+import DTRefresh from "../components/extraInterferenceLoc/DTRefresh";
+import AnalysisLoc from "../components/extraInterferenceLoc/LocbyPathAnalysis/AnalysisLoc";
+import GeneratedRays from "../components/extraInterferenceLoc/LocbyPathAnalysis/GeneratedRays";
+import PointSelected from "../components/extraInterferenceLoc/LocbyPathAnalysis/PointSelected";
 
 Vue.use(Router)
 
@@ -60,7 +63,11 @@ export default new Router({
         {path: 'taskProgress', component: taskProgress},
         {path: 'Fishnet', component: Fishnet},
         {path: 'Overlay', component: Overlay},
-        {path: 'ScenePart', component: ScenePart}
+        {path: 'ScenePart', component: ScenePart},
+        {path: 'DTRefresh', component: DTRefresh},
+        {path: 'AnalysisLoc', component: AnalysisLoc},
+        {path: 'GeneratedRays', component: GeneratedRays},
+        {path: 'PointSelected', component: PointSelected}
       ]
     },
     {

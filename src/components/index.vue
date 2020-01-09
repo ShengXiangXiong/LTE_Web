@@ -44,12 +44,13 @@
 
         <el-submenu index="8">
           <template slot="title"><div class="el-icon-menu"></div>网外干扰源定位</template>
-          <el-menu-item index="/index/ExtraInterferenceLoc">网外源干扰定位</el-menu-item>
-          <el-menu-item index="8-2">网外源干扰定位2</el-menu-item>
-          <el-menu-item index="/index/InterferenceRayRecord">网外干扰定位射线记录</el-menu-item>
-          <el-menu-item index="8-4">路测管理</el-menu-item>
-          <el-menu-item index="8-5">虚拟路测图层</el-menu-item>
-          <el-menu-item index="8-6">网外干扰图层</el-menu-item>
+          <el-menu-item index="/index/ExtraInterferenceLoc">网外干扰定位</el-menu-item>
+<!--          <el-menu-item index="/index/InterferenceRayRecord">网外干扰定位射线记录</el-menu-item>-->
+          <el-menu-item index="/index/DTRefresh">指定路测参数[可选]</el-menu-item>
+          <el-menu-item index="/index/AnalysisLoc">反向跟踪点选取</el-menu-item>
+          <el-menu-item index="/index/GeneratedRays">射线跟踪参数设定</el-menu-item>
+          <el-menu-item index="/index/PointSelected">网外干扰源定位</el-menu-item>
+
         </el-submenu>
 
         <el-submenu index="9">

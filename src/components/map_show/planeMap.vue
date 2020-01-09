@@ -23,6 +23,10 @@
           <span class="esri-icon-checkbox-unchecked"></span>
         </div>
 
+        <el-card class="box-card">
+          <div>{{'经度:' + this.sceneLon}}</div>
+          <div>{{'纬度:' + this.sceneLat}}</div>
+        </el-card>
 
         <el-col>
           <el-input type="text"
@@ -49,6 +53,12 @@
         <el-col>
           <el-button class="esri-widget" id="doBtn3" @click="fixTerminal" icon="el-icon-search" type="primary"
                      size="small">固定终端
+          </el-button>
+        </el-col>
+
+        <el-col>
+          <el-button class="esri-widget" id="doBtn4" @click="sceneLayer" icon="el-icon-search" type="primary"
+                     size="small">场景图层
           </el-button>
         </el-col>
 
@@ -100,6 +110,11 @@
   </div>
   </el-row>
 
+
+
+
+
+
 </template>
 
 <script>
@@ -113,6 +128,10 @@
     components: {Index},
     data(){
       return {
+
+        sceneLat:0.00000,
+        sceneLon:0.00000,
+        // sceneLabelFlag: false,
         AreaCover: {
           maxLatitude: 32.258000,
           minLatitude: 32.257300,
@@ -156,10 +175,12 @@
         query:null,
         queryTaskForBuilding: null,
         queryTaskForGSM: null,
+        queryTaskForScene: null,
         mapImage:null,
         mapView:null,
         buildingPopupTemplate:null,
         gsmPopupTemplate: null,
+        sceneLayerPopupTemplate: null,
         functionPopupTemplate:null,
         graphic: null,
         gsmNameFind: '汊河变中兴宏基站-扇区1',
@@ -191,6 +212,8 @@
         let mapUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer'
         let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0'
         let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0'
+
+
         let testName = '小区8覆盖.shp'
         this.map = new apis.map()
         this.mapImage = new apis.TileLayer({
@@ -289,8 +312,25 @@
           }]
           // fieldInfos:["*"],
         };
-        //building弹出窗体
 
+
+        //sceneLayer弹出窗体
+        this.sceneLayerPopupTemplate = {
+          title:"The information of this selected sceneLayer",
+          content:[{
+            type:"fields",
+            fieldInfos:[{
+              fieldName:"scene",
+              visible:true,
+            },{
+              fieldName:"cid",
+              visible:true,
+            }]
+          }]
+        };
+
+
+        //gsm弹出窗体
         this.gsmPopupTemplate = {
           title: 'The information of this selected gsm',
           content: [{
@@ -433,17 +473,18 @@
       },
 
       eventHandler(evt) {
-        this.graphic = null
-        this.buildInfo = null
-        let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0'
-        let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0'
+        this.graphic = null;
+        this.buildInfo = null;
+        let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0';
+        let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0';
+        let sceneLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/scene/MapServer/0'
         //创建查询对象
-        this.query = new this.apis.Query()
-        this.query.outFields = ['*']//返回所有查询的属性
-        this.query.returnGeometry = true
-        this.queryTaskForBuilding = new this.apis.QueryTask(buildingLayerUrl)
-        this.queryTaskForGSM = new this.apis.QueryTask(gsmLayerUrl)
-
+        this.query = new this.apis.Query();
+        this.query.outFields = ['*']; //返回所有查询的属性
+        this.query.returnGeometry = true;
+        this.queryTaskForBuilding = new this.apis.QueryTask(buildingLayerUrl);
+        this.queryTaskForGSM = new this.apis.QueryTask(gsmLayerUrl);
+        this.queryTaskForScene = new this.apis.QueryTask(sceneLayerUrl);
         if (!this.drawFlag) {
           this.mapView.graphics.removeAll()//clear currently displayed results
         }
@@ -521,6 +562,40 @@
               }
             })
           })
+
+
+        this.queryTaskForScene.execute(this.query).then((res) => {
+          if (res.features !== 0) {
+            console.log(res);
+            //解析attributes
+            let featureArray = res.features
+            let graphic = featureArray[0]
+            graphic.attributes['Longitude'] = lon
+            graphic.attributes['Latitude'] = lat
+            this.buildInfo = graphic.attributes
+            graphic.symbol = {
+              type: "simple-line",
+              color: [226, 119, 40],
+            };
+            //再次点击时，就相当于点击这个graphic，那么就会自动呈现template
+            this.mapView.graphics.add(graphic);
+            this.graphic = graphic;
+            return graphic;
+          }
+        })
+            .then((graphic)=>{
+              if(graphic==null){
+                return
+              }
+              this.mapView.on("click",(evt)=>{
+                if(evt.button===0){
+                  //左键将查询到的graphic绑定定义好的template
+                  graphic.popupTemplate = this.sceneLayerPopupTemplate;
+                }
+              })
+            })
+
+
       },
       clickHandler (evt) {
         console.log(this.mapView.graphics);
@@ -1230,6 +1305,9 @@
           }
     });
     // 将绘制的图形添加到view
+        console.log(graphic);
+        this.sceneLat = +graphic.geometry.latitude.toFixed(4);
+        this.sceneLon = +graphic.geometry.longitude.toFixed(4);
         this.mapView.graphics.add(graphic);
   },
   //根据点坐标生成新的线
@@ -1443,6 +1521,11 @@
           {
             duration: 1000
           })
+      },
+
+      sceneLayer(){
+        let layerName = 'testc.shp';
+        this.addGsmLayer(layerName, '#a6ff02');
       },
       jumpProgress () {
         let routeUrl = this.$router.resolve({
