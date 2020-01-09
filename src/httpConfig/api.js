@@ -44,3 +44,4 @@ export const PostGrassOverlay = (params) => axios.post('api/Overlay/PostGrassOve
 export const PostScenePart = (params) => axios.post('api/ScenePart/PostScenePart', params)
 export const PostClusterShp = (params) => axios.post('api/ScenePart/PostClusterShp', params);
 export const PostAdjCoefficient = (params) => axios.post('api/ScenePart/PostAdjCoefficient', params);
+export const getShpByAreaLonLat = (params) => axios.post('api/LoadShpLayer/getShpByAreaLonLat', params);

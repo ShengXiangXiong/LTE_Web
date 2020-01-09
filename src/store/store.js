@@ -12,6 +12,8 @@ export default new Vuex.Store({
       userID: window.localStorage.getItem('user' || '[]') == null ? '' : JSON.parse(window.localStorage.getItem('user' || '[]')).userid
     },
     routes: [],
+    sceneModelFlag: true,
+    currentTaskName: '111null',
     // msgList: [],
     // isDotMap: new Map(),
     // currentFriend: {},
@@ -30,6 +32,16 @@ export default new Vuex.Store({
       window.localStorage.removeItem('user');
       state.routes = [];
     },
+    changeSceneModelFlagToTrue(state){
+      state.sceneModelFlag = true;
+    },
+    changeSceneModelFlagToFalse(state){
+      state.sceneModelFlag = false;
+    },
+    changeCurrentTaskName(state, newName){
+      state.currentTaskName = newName;
+      console.log('ss'+ state.currentTaskName);
+    }
 /*    toggleNFDot(state, newValue){
       state.nfDot = newValue;
     },

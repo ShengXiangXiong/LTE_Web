@@ -15,6 +15,7 @@
 
 <script>
   import {getInfo} from '@/httpConfig/api'
+
   export default {
     name: "taskProgress",
     data() {
@@ -78,6 +79,8 @@
         });
       },
       handleInfo(array, index){
+
+
         let id = '0';
         let cnt = '0';
         let finishFlag = '0';
@@ -100,6 +103,15 @@
         }
         else {
           if (finishFlag === '0'){
+            console.log(this.$store.state.currentTaskName);
+
+            if(taskName.search(this.$store.state.currentTaskName) !== -1){
+              console.log('进了toFalse');
+              this.$store.commit('changeSceneModelFlagToFalse');
+              console.log(this.$store.state.sceneModelFlag);
+            }
+
+
             taskName += ' 状态： doing';
             if (count === '0'){
               this.progressNum = 0;
@@ -114,6 +126,13 @@
             }
           }
           else{
+
+            if(taskName.search(this.$store.state.currentTaskName) !== -1){
+              console.log('进了toTrue');
+              this.$store.commit('changeSceneModelFlagToTrue');
+              console.log(this.$store.state.sceneModelFlag);
+            }
+
             taskName += ' 状态： done';
             this.progressNum = 100
           }
@@ -121,6 +140,7 @@
         // this.$refs.myProgress.updateProgressData(this.progressNum, taskName, index)
         this.updateProgressData(this.progressNum, taskName, index);
       },
+
     }
   }
 </script>

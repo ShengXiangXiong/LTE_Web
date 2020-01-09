@@ -20,31 +20,30 @@ import {PostFishnet} from '@/httpConfig/api'
         },
         methods: {
             submitForm() {
+              this.$store.commit('changeCurrentTaskName', '渔网生成');
+              console.log(this.$store.state.currentTaskName);
+              if(this.$store.state.sceneModelFlag){
                 console.log("test..........................");
                 PostFishnet().catch(err => {
                   console.log('捕获');
                   errInfo = err;
-                  // this.$message.success({message: '连接错误!'})
                 });
-                this.$message.success({message: '渔网任务提交成功!'})
-                    // .then(response => {
-                    //      console.log(response);
-                    //     if (response && response.data.ok) {
-                    //         this.jumpProgress();
-                    //         this.$message.success({message: '渔网任务提交成功!'})
-                    //      //   this.$router.push({path: '/index'})
-                    //     } else {
-                    //         this.$message.success({message: '渔网任务提交失败!'})
-                    //    //     this.$router.push({path: '/index'})
-                    //     }
-                    // })
+                this.$message.success({message: '渔网任务提交成功!'});
+                console.log('change done');
+              }
+              else{
+                this.$message.success({message: '当前有任务正在进行，请等待!'});
+                console.log('当前有任务正在进行');
+              }
 
             },
             jumpProgress() {
-                let routeUrl = this.$router.resolve({
-                    path: "/index/taskProgress",
-                });
-                window.open(routeUrl.href, '_blank');
+              this.$router.push({ path: "/index/taskProgress"});
+
+              // let routeUrl = this.$router.resolve({
+              //       path: "/index/taskProgress",
+              //   });
+              //   window.open(routeUrl.href, '_blank');
             },
             resetForm(formName) {
                 this.$refs[formName].resetFields()

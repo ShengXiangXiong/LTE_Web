@@ -78,6 +78,22 @@
           </el-dropdown-menu>
         </el-dropdown>
 
+        <el-dropdown @command="handleCommand">
+          <el-button type="primary" class="esri-widget">
+            区域覆盖图层<i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="weakCoverPoint">弱覆盖点</el-dropdown-item>
+            <el-dropdown-item command="overCoverPoint">过覆盖点</el-dropdown-item>
+            <el-dropdown-item command="overlapCoverPoint">重叠覆盖点</el-dropdown-item>
+            <el-dropdown-item command="PCIConflictPoint">PCI冲突点</el-dropdown-item>
+            <el-dropdown-item command="PCIMixPoint">PCI混淆点</el-dropdown-item>
+            <el-dropdown-item command="PCImod3Point">PCImod3对打点</el-dropdown-item>
+            <el-dropdown-item command="groundCover">地面覆盖</el-dropdown-item>
+            <el-dropdown-item command="3DCover">立体覆盖</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
       </div>
     </div>
 
@@ -90,7 +106,7 @@
   import Index from '../index'
   import load_esri from '../../utils/map_load_tool'
   import esriLoader from 'esri-loader'
-  import {AreaCoverAnalysis, LoadShpLayer, PostAreaCoverDefect, PostFixTerminalLayer} from '@/httpConfig/api'
+  import {AreaCoverAnalysis, LoadShpLayer, PostAreaCoverDefect, PostFixTerminalLayer, getShpByAreaLonLat} from '@/httpConfig/api'
 
   export default {
     name: "planeMap",
@@ -119,8 +135,16 @@
           minLatitude: 32.257300,
           maxLongitude: 118.749300,
           minLongitude: 118.749250,
-
         },
+
+        typeAndLatLon:{
+          maxLatitude: 32.258000,
+          minLatitude: 32.257300,
+          maxLongitude: 118.749300,
+          minLongitude: 118.749250,
+          type: '0'
+        },
+
         nowLayer: null,
         nowLegend: null,
         drawFlag: false,
@@ -156,7 +180,7 @@
     },
     methods: {
       async loadMap() {
-        let apis = await load_esri()
+        let apis = await load_esri();
         esriLoader.loadCss('/static/arcgis_js_api/library/4.11/esri/css/main.css')
         this.apis = apis
         this.apis.urlUtils.addProxyRule({
@@ -562,6 +586,9 @@
         return '小区1覆盖.shp'
       },
       addGsmLayer (gsmLayerName, color) {
+        this.map.remove(this.nowLayer);
+        this.mapView.ui.remove(this.nowLegend);
+
         let grassRenderer = {
           type: 'simple', // autocasts as new SimpleRenderer()
           symbol: {
@@ -570,12 +597,13 @@
             color: color
           },
           label: 'grass'
-        }
+        };
 
         let layer = new this.apis.MapImageLayer({
           // url: 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer',
-          // url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer',
-          url: 'http://localhost:6080/arcgis/rest/services/LTE/MapServer',
+          url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer',
+          // url: 'http://localhost:6080/arcgis/rest/services/LTE/MapServer',
+
           sublayers: [{
             renderer: grassRenderer,  // renderer
             source: {
@@ -592,56 +620,14 @@
         const legend = new this.apis.Legend({
           view: this.mapView
         });
-
-        this.nowLegend = legend;
         this.mapView.ui.add(legend, "bottom-right");
-        this.nowLayer = layer;
+
+        if (gsmLayerName !== '小区.shp'){
+          this.nowLayer = layer;
+        }
+        this.nowLegend = legend;
         this.map.add(layer);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // let gsmRenderer = {
-        //   type: 'simple', // autocasts as new SimpleRenderer()
-        //   symbol: {
-        //     type: 'simple-line', // autocasts as new SimpleLineSymbol()
-        //     style: 'none',
-        //     width: 0.7,
-        //     color: 'black'
-        //   },
-        // };
-        //
-        // let layer = new this.apis.MapImageLayer({
-        //   // url: 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer',
-        //   // url: 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer',
-        //   url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer',
-        //   legendEnabled: false,
-        //   sublayers: [{
-        //     renderer: gsmRenderer,  // renderer
-        //     source: {
-        //       type: 'data-layer',
-        //       dataSource: {
-        //         type: 'table',
-        //         workspaceId: '0',
-        //         dataSourceName: gsmLayerName
-        //       }
-        //     }
-        //   }]
-        // });
-        //
-        // this.map.add(layer);
       },
       addLayer (dataSourceName, colorFeature) {
 
@@ -698,9 +684,9 @@
         const renderer = {
           type: 'class-breaks',
           field: colorFeature, // RecePower
-          legendOptions: {
-            title: "这是图例"
-          },
+          // legendOptions: {
+          //   title: "这是图例"
+          // },
           symbol: {
             type: 'simple-line', // autocasts as new SimpleLineSymbol()
             style: 'none',
@@ -804,6 +790,7 @@
       },
 
       handleCommand(command) {
+        let errInfo = null;
         if (command === 'showBuildingLayer')
         {
           this.showBuildingLayer()
@@ -831,8 +818,162 @@
                 this.$message.success({message: '刷新成功！'})
               }
             })
-
         }
+        if (command === 'weakCoverPoint')
+        {
+          console.log('弱覆盖点');
+          this.typeAndLatLon.type = '0';
+          getShpByAreaLonLat(this.typeAndLatLon).catch(err => {
+            errInfo = err
+          })
+              .then(response => {
+                if (response && response.data.ok) {
+                  console.log(response);
+                  let dataList = response.data.obj;
+                  for(let i=0; i<dataList.length; i++)
+                  {
+                    // console.log(dataList[i]["ShpName"]);
+                    this.addLayer(dataList[i]["ShpName"], 'RecePower');
+                  }
+                  this.$message.success({message: '弱覆盖点获取成功！'})
+                }
+              })
+        }
+        if (command === 'overCoverPoint')
+        {
+          this.typeAndLatLon.type = '1';
+          console.log('过覆盖点');
+          getShpByAreaLonLat(this.typeAndLatLon).catch(err => {
+            errInfo = err
+          })
+              .then(response => {
+                if (response && response.data.ok) {
+                  console.log(response);
+                  let dataList = response.data.obj;
+                  for(let i=0; i<dataList.length; i++)
+                  {
+                    // console.log(dataList[i]["ShpName"]);
+                    this.addLayer(dataList[i]["ShpName"], 'RecePower');
+                  }
+                  this.$message.success({message: '过覆盖点获取成功！'})
+                }
+              })
+        }
+        if (command === 'overlapCoverPoint')
+        {
+          this.typeAndLatLon.type = '2';
+          getShpByAreaLonLat(this.typeAndLatLon).catch(err => {
+            errInfo = err
+          })
+              .then(response => {
+                if (response && response.data.ok) {
+                  console.log(response);
+                  let dataList = response.data.obj;
+                  for(let i=0; i<dataList.length; i++)
+                  {
+                    // console.log(dataList[i]["ShpName"]);
+                    this.addLayer(dataList[i]["ShpName"], 'RecePower');
+                  }
+                  this.$message.success({message: '获取成功！'})
+                }
+              })
+        }
+        if (command === 'PCIConflictPoint')
+        {
+          this.typeAndLatLon.type = '3';
+          getShpByAreaLonLat(this.typeAndLatLon).catch(err => {
+            errInfo = err
+          })
+              .then(response => {
+                if (response && response.data.ok) {
+                  console.log(response);
+                  let dataList = response.data.obj;
+                  for(let i=0; i<dataList.length; i++)
+                  {
+                    // console.log(dataList[i]["ShpName"]);
+                    this.addLayer(dataList[i]["ShpName"], 'RecePower');
+                  }
+                  this.$message.success({message: '获取成功！'})
+                }
+              })
+        }
+        if (command === 'PCIMixPoint')
+        {
+          this.typeAndLatLon.type = '4';
+          getShpByAreaLonLat(this.typeAndLatLon).catch(err => {
+            errInfo = err
+          })
+              .then(response => {
+                if (response && response.data.ok) {
+                  console.log(response);
+                  let dataList = response.data.obj;
+                  for(let i=0; i<dataList.length; i++)
+                  {
+                    // console.log(dataList[i]["ShpName"]);
+                    this.addLayer(dataList[i]["ShpName"], 'RecePower');
+                  }
+                  this.$message.success({message: '获取成功！'})
+                }
+              })
+        }
+        if (command === 'PCImod3Point')
+        {
+          this.typeAndLatLon.type = '5';
+          getShpByAreaLonLat(this.typeAndLatLon).catch(err => {
+            errInfo = err
+          })
+              .then(response => {
+                if (response && response.data.ok) {
+                  console.log(response);
+                  let dataList = response.data.obj;
+                  for(let i=0; i<dataList.length; i++)
+                  {
+                    // console.log(dataList[i]["ShpName"]);
+                    this.addLayer(dataList[i]["ShpName"], 'RecePower');
+                  }
+                  this.$message.success({message: '获取成功！'})
+                }
+              })
+        }
+        if (command === 'groundCover')
+        {
+          this.typeAndLatLon.type = '6';
+          getShpByAreaLonLat(this.typeAndLatLon).catch(err => {
+            errInfo = err
+          })
+              .then(response => {
+                if (response && response.data.ok) {
+                  console.log(response);
+                  let dataList = response.data.obj;
+                  for(let i=0; i<dataList.length; i++)
+                  {
+                    // console.log(dataList[i]["ShpName"]);
+                    this.addLayer(dataList[i]["ShpName"], 'RecePower');
+                  }
+                  this.$message.success({message: '获取成功！'})
+                }
+              })
+        }
+        if (command === '3DCover')
+        {
+          this.typeAndLatLon.type = '7';
+          getShpByAreaLonLat(this.typeAndLatLon).catch(err => {
+            errInfo = err
+          })
+              .then(response => {
+                if (response && response.data.ok) {
+                  console.log(response);
+                  let dataList = response.data.obj;
+                  for(let i=0; i<dataList.length; i++)
+                  {
+                    // console.log(dataList[i]["ShpName"]);
+                    this.addLayer(dataList[i]["ShpName"], 'RecePower');
+                  }
+                  this.$message.success({message: '获取成功！'})
+                }
+              })
+        }
+
       },
 
       showBuildingLayer()
@@ -1210,10 +1351,15 @@
           this.AreaCover.maxLongitude = Math.max(startPointLon, endPointLon);
           this.AreaCover.minLongitude = Math.min(startPointLon, endPointLon);
 
-          this.PostAreaCover.maxLatitude = Math.max(startPointLat, endPointLat);
-          this.PostAreaCover.minLatitude = Math.min(startPointLat, endPointLat);
-          this.PostAreaCover.maxLongitude = Math.max(startPointLon, endPointLon);
-          this.PostAreaCover.minLongitude = Math.min(startPointLon, endPointLon);
+          this.PostAreaCover.maxLatitude =  this.AreaCover.maxLatitude;
+          this.PostAreaCover.minLatitude = this.AreaCover.minLatitude;
+          this.PostAreaCover.maxLongitude = this.AreaCover.maxLongitude;
+          this.PostAreaCover.minLongitude = this.AreaCover.minLongitude;
+
+          this.typeAndLatLon.maxLatitude =  this.AreaCover.maxLatitude;
+          this.typeAndLatLon.minLatitude = this.AreaCover.minLatitude;
+          this.typeAndLatLon.maxLongitude = this.AreaCover.maxLongitude;
+          this.typeAndLatLon.minLongitude = this.AreaCover.minLongitude;
 
           console.log(this.AreaCover.maxLatitude);
           console.log(this.AreaCover.minLatitude);
@@ -1274,22 +1420,22 @@
           })
       },
       fixTerminal () {
-        let gsmNameDate = null
-        let errInfo = null
-        let LoadName = '固定终端'
+        let gsmNameDate = null;
+        let errInfo = null;
+        let LoadName = '固定终端';
         gsmNameDate = LoadShpLayer({'IndexName': LoadName})
           .then(res => {
-            let temp = res.data.obj
-            console.log(temp)
-            this.addGsmLayer(temp, '#a6ff02')
+            let temp = res.data.obj;
+            console.log(temp);
+            this.addGsmLayer(temp, '#a6ff02');
           })
           .catch(err => {
             errInfo = err
-          })
+          });
         let pt = new this.apis.Point({
           latitude: 32.07823890473458,
           longitude: 118.7672780923098
-        })
+        });
         this.mapView.goTo({
             target: pt,
             scale: 6000
@@ -1301,7 +1447,7 @@
       jumpProgress () {
         let routeUrl = this.$router.resolve({
           path: '/index/taskProgress',
-        })
+        });
         window.open(routeUrl.href, '_blank')
       },
     }

@@ -147,10 +147,13 @@
         })
       },
       jumpProgress(){
-        let routeUrl = this.$router.resolve({
-          path: "/index/taskProgress",
-        });
-        window.open(routeUrl.href, '_blank');
+
+        this.$router.push({ path: "/index/taskProgress"});
+
+        // let routeUrl = this.$router.resolve({
+        //   path: "/index/taskProgress",
+        // });
+        // window.open(routeUrl.href, '_blank');
       },
       refreshGround(){
         postRefreshCellGroundCover(this.refreshName).then((response) => {
@@ -161,7 +164,8 @@
       },
       resetForm (formName) {
         // this.$refs[formName].resetFields()
-        this.jumpProgress();
+        // this.jumpProgress();
+        console.log(this.$store.state.currentTaskName);
       }
     }
   }

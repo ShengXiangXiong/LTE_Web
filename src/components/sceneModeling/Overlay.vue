@@ -40,24 +40,50 @@
         methods: {
             building ()
             {
-                PostBuildingOverlay()
+              console.log(this.$store.state.sceneModelFlag);
+              if(this.$store.state.sceneModelFlag)
+              {
+                PostBuildingOverlay();
                 this.$message.success({message: '建筑物叠加分析任务提交成功!'})
+              }
+              else{
+                this.$message.success({message: '当前有任务正在进行，请等待!'});
+                console.log('当前有任务正在进行');
+              }
+
             },
             water()
             {
-                PostWaterOverlay()
+              if(this.$store.state.sceneModelFlag)
+              {
+                PostWaterOverlay();
                 this.$message.success({message: '水面叠加分析任务提交成功!'})
+              }
+              else{
+                this.$message.success({message: '当前有任务正在进行，请等待!'});
+                console.log('当前有任务正在进行');
+              }
+
             },
             grass()
             {
-                PostGrassOverlay()
+              if(this.$store.state.sceneModelFlag)
+              {
+                PostGrassOverlay();
                 this.$message.success({message: '草地叠加分析任务提交成功!'})
+              }
+              else{
+                this.$message.success({message: '当前有任务正在进行，请等待!'});
+                console.log('当前有任务正在进行');
+              }
+
             },
             jumpProgress(){
-                let routeUrl = this.$router.resolve({
-                    path: "/index/taskProgress",
-                });
-                window.open(routeUrl.href, '_blank');
+              this.$router.push({ path: "/index/taskProgress"});
+                // let routeUrl = this.$router.resolve({
+                //     path: "/index/taskProgress",
+                // });
+                // window.open(routeUrl.href, '_blank');
             }
         }
     }

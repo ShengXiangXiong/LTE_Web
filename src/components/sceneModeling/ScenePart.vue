@@ -42,24 +42,56 @@
         methods: {
             scenepart ()
             {
-                PostScenePart()
+              if(this.$store.state.sceneModelFlag)
+              {
+                PostScenePart();
                 this.$message.success({message: '场景划分任务提交成功!'})
+              }
+              else{
+                this.$message.success({message: '当前有任务正在进行，请等待!'});
+
+                console.log('当前有任务正在进行');
+              }
+
             },
             cluster()
             {
-                PostClusterShp()
+              console.log(this.$store.state.sceneModelFlag);
+              if(this.$store.state.sceneModelFlag)
+              {
+                console.log(this.$store.state.sceneModelFlag);
+
+                PostClusterShp();
                 this.$message.success({message: '聚类图层生成任务提交成功!'})
+              }
+              else{
+                console.log(this.$store.state.sceneModelFlag);
+
+                this.$message.success({message: '当前有任务正在进行，请等待!'});
+
+                console.log('当前有任务正在进行');
+              }
+
             },
             coefficient()
             {
-                PostAdjCoefficient()
+              if(this.$store.state.sceneModelFlag)
+              {
+                PostAdjCoefficient();
                 this.$message.success({message: '矫正系数任务提交成功!'})
+              }
+              else{
+                this.$message.success({message: '当前有任务正在进行，请等待!'});
+                console.log('当前有任务正在进行');
+              }
+
             },
             jumpProgress(){
-                let routeUrl = this.$router.resolve({
-                    path: "/index/taskProgress",
-                });
-                window.open(routeUrl.href, '_blank');
+              this.$router.push({ path: "/index/taskProgress"});
+                // let routeUrl = this.$router.resolve({
+                //     path: "/index/taskProgress",
+                // });
+                // window.open(routeUrl.href, '_blank');
             }
 
         },
