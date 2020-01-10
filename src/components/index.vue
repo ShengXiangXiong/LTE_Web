@@ -47,9 +47,9 @@
           <el-menu-item index="/index/ExtraInterferenceLoc">网外干扰定位</el-menu-item>
 <!--          <el-menu-item index="/index/InterferenceRayRecord">网外干扰定位射线记录</el-menu-item>-->
           <el-menu-item index="/index/DTRefresh">指定路测参数[可选]</el-menu-item>
-          <el-menu-item index="/index/AnalysisLoc">反向跟踪点选取</el-menu-item>
+          <el-menu-item index="/index/AnalysisLoc">网外干扰源定位</el-menu-item>
           <el-menu-item index="/index/GeneratedRays">射线跟踪参数设定</el-menu-item>
-          <el-menu-item index="/index/PointSelected">网外干扰源定位</el-menu-item>
+          <el-menu-item index="/index/PointSelected">反向跟踪点选取</el-menu-item>
 
         </el-submenu>
 
