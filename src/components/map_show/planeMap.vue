@@ -124,19 +124,26 @@
   import Index from '../index'
   import load_esri from '../../utils/map_load_tool'
   import esriLoader from 'esri-loader'
-  import {AreaCoverAnalysis, LoadShpLayer, PostAreaCoverDefect, PostFixTerminalLayer, getShpByAreaLonLat} from '@/httpConfig/api'
+  import {
+    AreaCoverAnalysis,
+    getShpByAreaLonLat,
+    LoadShpLayer,
+    PostAreaCoverDefect,
+    PostFixTerminalLayer
+  } from '@/httpConfig/api'
   import Bus from '../../store/bus'
+
   export default {
-    name: "planeMap",
+    name: 'planeMap',
     components: {Index},
-    data(){
+    data () {
       return {
 
         // locLat: 0.0000,
         // locLon: 0.0000,
         // locSourceName: null,
-        sceneLat:0.0000,
-        sceneLon:0.0000,
+        sceneLat: 0.0000,
+        sceneLon: 0.0000,
 
         AreaCover: {
           maxLatitude: 32.258000,
@@ -216,7 +223,7 @@
     methods: {
       async loadMap() {
         let apis = await load_esri();
-        esriLoader.loadCss('/static/arcgis_js_api/library/4.11/esri/css/main.css')
+        esriLoader.loadCss('http://localhost/arcgis_js_api/library/4.11/esri/css/main.css')
         this.apis = apis
         this.apis.urlUtils.addProxyRule({
           urlPrefix: 'http://10.103.252.26:6080',  //切片服务地址
@@ -1568,8 +1575,6 @@
 </script>
 
 <style scoped>
-  /*@import url('http://localhost/arcgis_js_api/library/4.11/esri/css/main.css');*/
-  /*@import "/static/arcgis_js_api/library/4.11/esri/css/main.css";*/
   #viewDiv {
     margin: 0 auto;
     border: 0 solid #000;
