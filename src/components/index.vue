@@ -44,7 +44,7 @@
 
         <el-submenu index="8">
           <template slot="title"><div class="el-icon-menu"></div>网外干扰源定位</template>
-          <el-menu-item index="/index/ExtraInterferenceLoc">网外干扰定位</el-menu-item>
+<!--          <el-menu-item index="/index/ExtraInterferenceLoc">网外干扰定位</el-menu-item>-->
 <!--          <el-menu-item index="/index/InterferenceRayRecord">网外干扰定位射线记录</el-menu-item>-->
           <el-menu-item index="/index/DTRefresh">指定路测参数[可选]</el-menu-item>
           <el-menu-item index="/index/AnalysisLoc">网外干扰源定位</el-menu-item>

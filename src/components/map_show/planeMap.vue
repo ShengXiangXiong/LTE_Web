@@ -22,6 +22,9 @@
         <div id="rectangle-button" class="esri-widget esri-widget--button esri-interactive" title="画矩形">
           <span class="esri-icon-checkbox-unchecked"></span>
         </div>
+        <div id="clear-button" class="esri-widget esri-widget--button esri-interactive" title="清除">
+          <span class="esri-icon-close"></span>
+        </div>
 
         <el-card class="box-card">
           <div>{{'经度:' + this.sceneLon}}</div>
@@ -122,16 +125,19 @@
   import load_esri from '../../utils/map_load_tool'
   import esriLoader from 'esri-loader'
   import {AreaCoverAnalysis, LoadShpLayer, PostAreaCoverDefect, PostFixTerminalLayer, getShpByAreaLonLat} from '@/httpConfig/api'
-
+  import Bus from '../../store/bus'
   export default {
     name: "planeMap",
     components: {Index},
     data(){
       return {
 
-        sceneLat:0.00000,
-        sceneLon:0.00000,
-        // sceneLabelFlag: false,
+        // locLat: 0.0000,
+        // locLon: 0.0000,
+        // locSourceName: null,
+        sceneLat:0.0000,
+        sceneLon:0.0000,
+
         AreaCover: {
           maxLatitude: 32.258000,
           minLatitude: 32.257300,
@@ -187,7 +193,14 @@
       }
     },
     mounted () {
-      this.loadMap()
+      this.loadMap();
+      Bus.$on('locLatLon',(lat, lon, locName)=>{        //监听干扰源定位
+        // this.locLat = lat;
+        // this.locLon = lon;
+        // this.locSourceName = locName;
+        this.locInterSource(lon, lat, locName);
+        // this.locFlag = true;
+      });
     },
     computed: {
       view () {
@@ -199,6 +212,7 @@
 
       }
     },
+
     methods: {
       async loadMap() {
         let apis = await load_esri();
@@ -243,7 +257,7 @@
         this.mapView.ui.add("point-button", "top-left");//添加绘制面按钮，自定义UI
         this.mapView.ui.add("circle-button", "top-left");//添加绘制面按钮，自定义UI
         this.mapView.ui.add("rectangle-button", "top-left");//添加绘制面按钮，自定义UI
-
+        this.mapView.ui.add("clear-button", "top-left");//添加绘制面按钮，自定义UI
         // //创建查询对象
         // this.query = new this.apis.Query();
         // this.query.outFields = ["*"];//返回所有查询的属性
@@ -290,6 +304,11 @@
         drawRectangleButton.onclick = () => {
           this.enableCreateRectangle(draw, this.mapView);
         };
+        //清除绘制图形
+        let clearButton = document.getElementById("clear-button");
+          clearButton.onclick = () => {
+            this.mapView.graphics.removeAll();
+          };
         });
 
         //building弹出窗体
@@ -485,9 +504,9 @@
         this.queryTaskForBuilding = new this.apis.QueryTask(buildingLayerUrl);
         this.queryTaskForGSM = new this.apis.QueryTask(gsmLayerUrl);
         this.queryTaskForScene = new this.apis.QueryTask(sceneLayerUrl);
-        if (!this.drawFlag) {
-          this.mapView.graphics.removeAll()//clear currently displayed results
-        }
+        // if (!this.drawFlag) {
+        //   this.mapView.graphics.removeAll()//clear currently displayed results
+        // }
         // console.log(evt);
         let point = this.mapView.toMap(evt)
         this.query.geometry = point//获取地图点击的点，得到geometry区域
@@ -1068,33 +1087,7 @@
       },
       showAreaLayer()
       {
-        //创建点
-        let long = 118.7672780923098;
-        let lat = 32.07823890473458;
 
-        //生成绘制的图形
-        let graphic = new this.apis.Graphic({
-          geometry: new this.apis.Point(long, lat),
-          symbol: {
-            type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
-            style: "square",
-            color: "blue",
-            size: "8px",  // pixels
-            outline: {  // autocasts as new SimpleLineSymbol()
-              color: [ 255, 255, 0 ],
-              width: 3  // points
-            }
-          }
-        });
-        // 将绘制的图形添加到view
-        this.mapView.graphics.add(graphic);
-        this.mapView.goTo({
-              target: graphic,
-              scale: 6000
-            },
-            {
-              duration: 1000
-            });
       },
       showNetInLayer()
       {
@@ -1527,11 +1520,48 @@
         let layerName = 'testc.shp';
         this.addGsmLayer(layerName, '#a6ff02');
       },
-      jumpProgress () {
-        let routeUrl = this.$router.resolve({
-          path: '/index/taskProgress',
+
+      locInterSource(long, lat, locName){
+        // locSource弹出窗体
+        let locSourcePopupTemplate = {
+          title: locName,
+          // content: "{locName}",
+        };
+        //
+        let graphic = new this.apis.Graphic({
+          geometry: new this.apis.Point(long, lat),
+          symbol: {
+            type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+            style: "square",
+            color: "blue",
+            size: "8px",  // pixels
+            outline: {  // autocasts as new SimpleLineSymbol()
+              color: [ 255, 255, 0 ],
+              width: 3  // points
+            }
+          }
         });
-        window.open(routeUrl.href, '_blank')
+        // // 将绘制的图形添加到view
+
+        this.mapView.graphics.add(graphic);
+        this.mapView.goTo({
+              target: graphic,
+              scale: 6000
+            },
+            {
+              duration: 1000
+            });
+        graphic.popupTemplate = locSourcePopupTemplate;
+        this.mapView.graphics.add(graphic);
+
+      },
+
+      jumpProgress () {
+        this.$router.push({ path: "/index/taskProgress"});
+        // let routeUrl = this.$router.resolve({
+        //   path: '/index/taskProgress',
+        // });
+        // window.open(routeUrl.href, '_blank')
       },
     }
   };

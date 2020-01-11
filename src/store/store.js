@@ -13,7 +13,7 @@ export default new Vuex.Store({
     },
     routes: [],
     sceneModelFlag: true,
-    currentTaskName: '111null',
+    currentTaskName: 'null',
     // msgList: [],
     // isDotMap: new Map(),
     // currentFriend: {},

@@ -37,7 +37,7 @@ export const PostFixTerminalLayer = (params) => axios.post('api/RefreshLayer/Pos
 export const AreaCoverAnalysis = (params) => axios.post('api/AreaCoverAnalysis/Post', params);
 export const PostAreaCoverDefect = (params) => axios.post('api/AreaCoverDefect/PostAreaCoverDefect', params);
 
-export const PostFishnet = () => axios.post('api/Fishnet/PostFishnet/no');
+export const PostFishnet = () => axios.post('api/Fishnet/PostFishnet/no');        // 加上No暂时不让用
 export const PostBuildingOverlay = (params) => axios.post('api/Overlay/PostBuildingOverlay/no', params);
 export const PostWaterOverlay = (params) => axios.post('api/Overlay/PostWaterOverlay/no', params);
 export const PostGrassOverlay = (params) => axios.post('api/Overlay/PostGrassOverlay/no', params);
@@ -47,7 +47,8 @@ export const PostAdjCoefficient = (params) => axios.post('api/ScenePart/PostAdjC
 
 export const getShpByAreaLonLat = (params) => axios.post('api/LoadShpLayer/getShpByAreaLonLat', params);
 
-export const RefreshDTLayer = (params) => axios.post('api/', params);
-export const AnalysisLoc = (params) => axios.post('api/', params);
-export const generateRayLoc = (params) => axios.post('api/', params);
-export const pointSelected = (params) => axios.post('api/', params);
+
+export const pointSelected = (params) => axios.post('api/PointsSelect/SelectPoints', params);
+export const generateRayLoc = (params) => axios.post('api/RayRecord/PostRayRecordLoc', params);
+export const AnalysisLoc = (params) => axios.post('api/ExternalInfLocate/LocateAnalysis', params);
+export const RefreshDTLayer = (params)=>axios.post('api/RefreshLayer/PostRefreshDTLayer',params);

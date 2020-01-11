@@ -40,6 +40,7 @@
 
 <script>
     import {AnalysisLoc} from "@/httpConfig/api";
+    import Bus from '../../../store/bus';
 
     export default {
         name: "PointSelected",
@@ -79,8 +80,18 @@
                             let para = this.SDTForm;
                             console.log(this.SDTForm);
                             AnalysisLoc(para).then((res) => {
-                                this.addLoading = false;
-
+                              this.addLoading = false;
+                              if (res && res.data.ok) {
+                                console.log(res);
+                                let msg = res.data.msg;
+                                let lat = res.data.obj.lat;
+                                let lon = res.data.obj.lon;
+                                console.log(lat);
+                                console.log(lon);
+                                Bus.$emit('locLatLon',lat, lon, this.SDTForm.virname);
+                                this.$message.success({message: msg});
+                                this.$router.push({ path: "/index"});
+                              }
                             });
                         });
                     }
