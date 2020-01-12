@@ -1,8 +1,8 @@
 <template>
   <div class="floatPage">
     <div class="title_css">
-      反向跟踪点选取
-    </div>
+    反向跟踪点选取
+  </div>
     <el-form
       ref="SDTForm"
       :model="SDTForm"
@@ -31,12 +31,51 @@
       <el-form-item >
         <el-button
           type="primary"
-          @click="addSubmit()"
+          @click="SDTFormAddSubmit()"
           :loading="addLoading"
         >提交</el-button>
         <el-button @click="cancleSubmit()">重置</el-button>
+
+        <el-button @click="baseStation()">基站定位点确定</el-button>
+        <el-button @click="realPoint()">实际定位点确定</el-button>
+
       </el-form-item>
     </el-form>
+
+    <div class="title_css">
+      二次定位选点
+    </div>
+    <el-form
+      ref="SeLocPointForm"
+      :model="SeLocPointForm"
+      :rules="rules"
+      label-width="150px"
+      type="flex"
+      justify="center"
+      border
+      style="margin:10px 10% 10px 10%;;min-width:600px;"
+    >
+      <el-form-item label="干扰源名称" prop="virname">
+        <el-input  v-model="SeLocPointForm.virname"></el-input>
+      </el-form-item>
+      <el-form-item label="指定干扰源经度" prop="locLon">
+        <el-input type="locLon" v-model="SeLocPointForm.locLon"></el-input>
+      </el-form-item>
+      <el-form-item label="指定干扰源纬度" prop="locLat">
+        <el-input type="locLat" v-model="SeLocPointForm.locLat"></el-input>
+      </el-form-item>
+
+      <el-form-item >
+        <el-button
+          type="primary"
+          @click="seLocPointFormAddSubmit()"
+          :loading="addLoading"
+        >提交</el-button>
+        <el-button @click="cancleSubmit()">重置</el-button>
+        <el-button @click="selectPointConfirm()">选点更正确定</el-button>
+      </el-form-item>
+    </el-form>
+
   </div>
 </template>
 
@@ -56,6 +95,11 @@
                     DisCons: '150',
                     RSRPCons: '-80'
                 },
+              SeLocPointForm: {
+                virname:"绿建大厦中兴宏基站",
+                locLon: '0',
+                locLat: '0',
+              },
                 rules: {
                     virname: [
                         {required: true, message: '请输入扫频路测版本号', trigger: 'blur'}
@@ -73,12 +117,19 @@
                     ],
                     RSRPCons: [
                         {required: true, message: '请输入RSRP约束', trigger: 'blur'}
-                    ]
+                    ],
+                  locLon: [
+                    {required: true, message: '请输入干扰源经度', trigger: 'blur'}
+                  ],
+                  locLat: [
+                    {required: true, message: '请输入干扰源纬度', trigger: 'blur'}
+                  ],
+
                 }
             }
         },
         methods: {
-            addSubmit: function () {
+          SDTFormAddSubmit: function () {
                 this.$refs.SDTForm.validate((valid) => {
                     if (valid) {
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
@@ -102,8 +153,41 @@
                     }
                 });
             },
+
+          seLocPointFormAddSubmit: function () {
+            this.$refs.SeLocPointForm.validate((valid) => {
+              if (valid) {
+                this.$confirm('确认提交吗？', '提示', {}).then(() => {
+                  this.addLoading = true;
+                  //NProgress.start();
+                  let para = this.SeLocPointForm;
+                  console.log(this.SeLocPointForm);
+
+
+                  pointSelected(para).then((res) => {                   // ！这里要改api
+                    this.addLoading = false;
+
+                  });
+
+
+                });
+              }
+            });
+          },
+
+          baseStation(){
+
+          },
+          realPoint(){
+
+          },
+          selectPointConfirm(){
+
+          },
+
             cancleSubmit: function () {
                 this.$refs['SDTForm'].resetFields();
+                this.$refs['SeLocPointForm'].resetFields();
                 //this.$router.go(-1);
             }
         }

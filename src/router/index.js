@@ -22,7 +22,7 @@ import DTRefresh from "../components/extraInterferenceLoc/DTRefresh";
 import AnalysisLoc from "../components/extraInterferenceLoc/LocbyPathAnalysis/AnalysisLoc";
 import GeneratedRays from "../components/extraInterferenceLoc/LocbyPathAnalysis/GeneratedRays";
 import PointSelected from "../components/extraInterferenceLoc/LocbyPathAnalysis/PointSelected";
-
+import DTDataProcess from "../components/extraInterferenceLoc/DTDataProcess";
 Vue.use(Router)
 
 export default new Router({
@@ -67,7 +67,8 @@ export default new Router({
         {path: 'DTRefresh', component: DTRefresh},
         {path: 'AnalysisLoc', component: AnalysisLoc},
         {path: 'GeneratedRays', component: GeneratedRays},
-        {path: 'PointSelected', component: PointSelected}
+        {path: 'PointSelected', component: PointSelected},
+        {path: 'DTDataProcess', component: DTDataProcess},
       ]
     },
     {

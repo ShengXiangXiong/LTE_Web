@@ -74,6 +74,7 @@
             <el-dropdown-item command="fixTerminalLayer">终端图层刷新</el-dropdown-item>
             <el-dropdown-item command="buildingLayer">建筑物图层刷新</el-dropdown-item>
             <el-dropdown-item command="tinLayer">地形图层刷新</el-dropdown-item>
+            <el-dropdown-item command="areaLayer">区域覆盖图层刷新</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
 
@@ -202,6 +203,8 @@
     mounted () {
       this.loadMap();
       Bus.$on('locLatLon',(lat, lon, locName)=>{        //监听干扰源定位
+        this.sceneLat = lat;
+        this.sceneLon = lon;
         // this.locLat = lat;
         // this.locLon = lon;
         // this.locSourceName = locName;
@@ -223,7 +226,7 @@
     methods: {
       async loadMap() {
         let apis = await load_esri();
-        esriLoader.loadCss('http://localhost/arcgis_js_api/library/4.11/esri/css/main.css')
+        esriLoader.loadCss('https://js.arcgis.com/4.11/esri/css/main.css')
         this.apis = apis
         this.apis.urlUtils.addProxyRule({
           urlPrefix: 'http://10.103.252.26:6080',  //切片服务地址
@@ -1075,6 +1078,16 @@
               })
         }
 
+        if(command === "areaLayer"){
+          // console.log(this.AreaCover);
+          AreaCoverAnalysis(this.AreaCover).then((response) => {
+            console.log(response);
+            // if (response && response.data.ok) {
+            this.jumpProgress();
+            // }
+          }).catch((error) => {
+            console.log(error);});
+        }
       },
 
       showBuildingLayer()
@@ -1083,7 +1096,7 @@
         let colorFea = 'RecePower';
         let gsmNameDate = null;
         let errInfo = null;
-        gsmNameDate = LoadShpLayer({'IndexName': this.gsmNameFind})
+        gsmNameDate = LoadShpLayer({'IndexName': this.gsmNameFind, type: "groundCover"})
         // gsmNameDate = LoadShpLayer({'IndexName': '小区8覆盖'})
             .then(res=>{
               let temp = res.data.obj;
@@ -1110,14 +1123,7 @@
       },
       showVirtualLayer()
       {
-        // console.log(this.AreaCover);
-        AreaCoverAnalysis(this.AreaCover).then((response) => {
-          console.log(response);
-          // if (response && response.data.ok) {
-            this.jumpProgress();
-          // }
-        }).catch((error) => {
-          console.log(error);});
+
       },
       do_query(evt){
         this.mapView.graphics.removeAll();//clear currently displayed results
@@ -1532,7 +1538,7 @@
         // locSource弹出窗体
         let locSourcePopupTemplate = {
           title: locName,
-          // content: "{locName}",
+
         };
         //
         let graphic = new this.apis.Graphic({
@@ -1559,7 +1565,7 @@
               duration: 1000
             });
         graphic.popupTemplate = locSourcePopupTemplate;
-        this.mapView.graphics.add(graphic);
+        // this.mapView.graphics.add(graphic);
 
       },
 
