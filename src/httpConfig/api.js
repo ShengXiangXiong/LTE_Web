@@ -37,13 +37,13 @@ export const PostFixTerminalLayer = (params) => axios.post('api/RefreshLayer/Pos
 export const AreaCoverAnalysis = (params) => axios.post('api/AreaCoverAnalysis/Post', params);
 export const PostAreaCoverDefect = (params) => axios.post('api/AreaCoverDefect/PostAreaCoverDefect', params);
 
-export const PostFishnet = () => axios.post('api/Fishnet/PostFishnet/no');        // 加上No暂时不让用
-export const PostBuildingOverlay = (params) => axios.post('api/Overlay/PostBuildingOverlay/no', params);
-export const PostWaterOverlay = (params) => axios.post('api/Overlay/PostWaterOverlay/no', params);
-export const PostGrassOverlay = (params) => axios.post('api/Overlay/PostGrassOverlay/no', params);
-export const PostScenePart = (params) => axios.post('api/ScenePart/PostScenePart/no', params);
-export const PostClusterShp = (params) => axios.post('api/ScenePart/PostClusterShp/no', params);
-export const PostAdjCoefficient = (params) => axios.post('api/ScenePart/PostAdjCoefficient/no', params);
+export const PostFishnet = () => axios.post('api/Fishnet/PostFishnet');        // 加上No暂时不让用
+export const PostBuildingOverlay = (params) => axios.post('api/Overlay/PostBuildingOverlay', params);
+export const PostWaterOverlay = (params) => axios.post('api/Overlay/PostWaterOverlay', params);
+export const PostGrassOverlay = (params) => axios.post('api/Overlay/PostGrassOverlay', params);
+export const PostScenePart = (params) => axios.post('api/ScenePart/PostScenePart', params);
+export const PostClusterShp = (params) => axios.post('api/ScenePart/PostClusterShp', params);
+export const PostAdjCoefficient = (params) => axios.post('api/ScenePart/PostAdjCoefficient', params);
 
 export const getShpByAreaLonLat = (params) => axios.post('api/LoadShpLayer/getShpByAreaLonLat', params);
 

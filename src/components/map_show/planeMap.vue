@@ -251,7 +251,7 @@
           map: this.map,
           zoom: 3,
         });
-        // this.addGsmLayer(testName);
+        this.addGsmLayer(testName, 'black');
 
         this.addGsmLayer('小区.shp', 'black')
 
@@ -1097,7 +1097,7 @@
         let gsmNameDate = null;
         let errInfo = null;
         gsmNameDate = LoadShpLayer({'IndexName': this.gsmNameFind, type: "groundCover"})
-        // gsmNameDate = LoadShpLayer({'IndexName': '小区8覆盖'})
+        //gsmNameDate = LoadShpLayer({'IndexName': '小区8覆盖', type: "groundCover"})
             .then(res=>{
               let temp = res.data.obj;
               console.log(temp);
@@ -1303,7 +1303,7 @@
             type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
             style: "square",
             color: "blue",
-            size: "8px",  // pixels
+            size: "15px",  // pixels
             outline: {  // autocasts as new SimpleLineSymbol()
               color: [ 255, 255, 0 ],
               width: 3  // points
@@ -1547,7 +1547,7 @@
             type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
             style: "square",
             color: "blue",
-            size: "8px",  // pixels
+            size: "25px",  // pixels
             outline: {  // autocasts as new SimpleLineSymbol()
               color: [ 255, 255, 0 ],
               width: 3  // points
