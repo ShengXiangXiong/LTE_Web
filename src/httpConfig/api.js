@@ -45,10 +45,14 @@ export const PostScenePart = (params) => axios.post('api/ScenePart/PostScenePart
 export const PostClusterShp = (params) => axios.post('api/ScenePart/PostClusterShp/no', params);
 export const PostAdjCoefficient = (params) => axios.post('api/ScenePart/PostAdjCoefficient/no', params);
 
+
 export const getShpByAreaLonLat = (params) => axios.post('api/LoadShpLayer/getShpByAreaLonLat', params);
 
 
 export const pointSelected = (params) => axios.post('api/PointsSelect/SelectPoints', params);
+export const pointSelectedReal = (params) => axios.post('api/PointsSelect/SelectPointsInf', params);
+export const pointSelectedUpdate = (params) => axios.post('api/PointsSelect/UpdateSelectPoints', params);
 export const generateRayLoc = (params) => axios.post('api/RayRecord/PostRayRecordLoc', params);
 export const AnalysisLoc = (params) => axios.post('api/ExternalInfLocate/LocateAnalysis', params);
-export const RefreshDTLayer = (params)=>axios.post('api/RefreshLayer/PostRefreshDTLayer',params);
+export const RefreshDTLayer = (params) => axios.post('api/RefreshLayer/PostRefreshDTLayer',params);
+export const RefreshSPLayer = (params) => axios.post('api/RefreshLayer/PostRefreshSPLayer',params);

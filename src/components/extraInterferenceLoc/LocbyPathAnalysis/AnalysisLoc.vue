@@ -48,9 +48,9 @@
             return {
                 addLoading: false,
                 SDTForm: {
-                    virname:"绿建大厦中兴宏基站",
-                    ratioAP: '0.3',
-                    ratioP: '0.2',
+                    virname:"Test_v4",
+                    ratioAP: '0.2',
+                    ratioP: '0.3',
                     ratioAPW: '0.5'
                 },
                 rules: {

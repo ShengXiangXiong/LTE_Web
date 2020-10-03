@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import login from '../components/login/login'
+import logout from "../components/logout/logout"
 import project_show from '../components/project_manage/project_show'
 import index from '../components/index'
 import CellRayTracing from '../components/coverageCompute/CellRayTracing'
@@ -19,6 +20,7 @@ import Fishnet from '../components/sceneModeling/Fishnet'
 import Overlay from '../components/sceneModeling/Overlay'
 import ScenePart from '../components/sceneModeling/ScenePart'
 import DTRefresh from "../components/extraInterferenceLoc/DTRefresh";
+import SPRefresh from "../components/extraInterferenceLoc/SPRefresh";
 import AnalysisLoc from "../components/extraInterferenceLoc/LocbyPathAnalysis/AnalysisLoc";
 import GeneratedRays from "../components/extraInterferenceLoc/LocbyPathAnalysis/GeneratedRays";
 import PointSelected from "../components/extraInterferenceLoc/LocbyPathAnalysis/PointSelected";
@@ -38,6 +40,11 @@ export default new Router({
       path: '/login',
       name: 'login',
       component: login
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      component: logout
     },
     {
       path: '/project_show',
@@ -65,6 +72,7 @@ export default new Router({
         {path: 'Overlay', component: Overlay},
         {path: 'ScenePart', component: ScenePart},
         {path: 'DTRefresh', component: DTRefresh},
+        {path: 'SPRefresh', component: SPRefresh},
         {path: 'AnalysisLoc', component: AnalysisLoc},
         {path: 'GeneratedRays', component: GeneratedRays},
         {path: 'PointSelected', component: PointSelected},

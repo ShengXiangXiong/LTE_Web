@@ -2,7 +2,7 @@
   <div>
     <div class="floatPage">
       <div class="title_css">
-        射线跟踪参数设定
+        信号传播路径生成
       </div>
       <el-form :model="ruleForm"
                :rules="rules"
@@ -14,7 +14,7 @@
                style="margin:10px 20% 10px 20%;;min-width:600px;">
 
         <div class="sub_title_css">
-          小区参数
+          反向跟踪参数
         </div>
         <el-form-item label="扫频路测版本号" prop="virsource">
           <el-input v-model="ruleForm.virsource"></el-input>
@@ -43,8 +43,6 @@
           </el-form-item>
         </div>
 
-
-
       </el-form>
     </div>
   </div>
@@ -59,10 +57,10 @@
             return {
                 addLoading: false,
                 ruleForm:{
-                    virsource:"绿建大厦中兴宏基站",
+                    virsource:"Test_v5",
                     incrementAngle:'50',
-                    reflectionNum:'2',
-                    diffractionNum:'1',
+                    reflectionNum:'3',
+                    diffractionNum:'2',
                     sideSplitUnit:'3',
                 },
                 rules: {
