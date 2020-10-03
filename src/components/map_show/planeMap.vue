@@ -1096,7 +1096,7 @@
         let gsmNameDate = null;
         let errInfo = null;
         gsmNameDate = LoadShpLayer({'IndexName': this.gsmNameFind, type: "groundCover"})
-        // gsmNameDate = LoadShpLayer({'IndexName': '小区8覆盖'})
+        // gsmNameDate = LoadShpLayer({'IndexName': '小区8覆盖',type: "groundCover"})
             .then(res=>{
               let temp = res.data.obj;
               console.log(temp);
