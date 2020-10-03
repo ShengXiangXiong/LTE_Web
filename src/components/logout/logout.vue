@@ -7,13 +7,30 @@
              label-width="0px"
              class="demo-ruleForm login-page">
       <h3 class="title">系统注册</h3>
+      <div style="float: left"><b>请输入用户名</b></div>
+
       <el-form-item prop="username">
+
         <el-input type="text"
                   v-model="user.userName"
                   auto-complete="off"
                   placeholder="用户名"
         ></el-input>
       </el-form-item>
+
+
+      <div style="float: left"><b>请输入注册邮箱</b></div>
+      <el-form-item prop="userMail">
+        <el-input type="text"
+                  v-model="user.userMail"
+                  auto-complete="off"
+                  placeholder="邮箱"
+        ></el-input>
+      </el-form-item>
+
+      <div style="float: left"><b>请输入密码</b></div>
+
+
       <el-form-item prop="password">
         <el-input type="password"
                   v-model="user.userPwd"
@@ -21,6 +38,9 @@
                   placeholder="密码"
         ></el-input>
       </el-form-item>
+
+      <div style="float: left"><b>请再次输入密码</b></div>
+
 
       <el-form-item prop="password">
         <el-input type="password"
@@ -30,8 +50,18 @@
         ></el-input>
       </el-form-item>
 
+
+      <el-form-item prop="password">
+        <div style="font-size:16px; float: left"><b>是否注册为管理员</b></div>
+        <el-radio v-model="radio" label="1">是</el-radio>
+        <el-radio v-model="radio" label="2">否</el-radio>
+
+      </el-form-item>
+
+
+
       <el-form-item style="width:100%;">
-        <el-button type="primary"  style="width:100%"  @click="handleLogout" >注册</el-button>
+        <el-button type="primary"  style="width:100%"  @click="open" >注册</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -44,9 +74,11 @@
     data(){
       return {
         //logining: false,
+        radio: '1',
         user: {
           userName: '',
           userPwd: '',
+          userMail: '',
         },
         rules2: {
           userName: [{required: true, message: 'please enter your account', trigger: 'blur'}],
@@ -61,7 +93,17 @@
 
       handleLogout()
       {
+
         this.$router.push('/logout')
+      },
+
+      open() {
+        this.$alert('注册成功！点击确定返回登录界面', '提示信息', {
+          confirmButtonText: '确定',
+          callback: action => {
+            this.$router.push('/login');
+          }
+        });
       },
 
     }

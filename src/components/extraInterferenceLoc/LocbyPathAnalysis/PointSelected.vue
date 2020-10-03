@@ -40,6 +40,7 @@
           :loading="addLoadingR"
         >基于实际干扰测量数据提取</el-button>
         <el-button @click="cancleSubmit()">重置</el-button>
+
       </el-form-item>
     </el-form>
 
@@ -64,6 +65,7 @@
       </el-form-item>
       <el-form-item label="指定干扰源纬度" prop="inflat">
         <el-input type="locLat" v-model="SeLocPointForm.inflat"></el-input>
+
       </el-form-item>
 
       <el-form-item >
@@ -174,6 +176,7 @@
                                     type: 'success'
                                 });
                                 this.$refs['file'].resetFields();
+
                                 //this.$router.go(-1)
                             });
                         });
@@ -212,6 +215,7 @@
             },
             cancleSubmitSeLoc: function () {
                 //this.$refs['SDTForm'].resetFields();
+
                 this.$refs['SeLocPointForm'].resetFields();
                 //this.$router.go(-1);
             }

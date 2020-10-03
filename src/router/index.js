@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import login from '../components/login/login'
+import logout from "../components/logout/logout"
 import project_show from '../components/project_manage/project_show'
 import index from '../components/index'
 import CellRayTracing from '../components/coverageCompute/CellRayTracing'
@@ -39,6 +40,11 @@ export default new Router({
       path: '/login',
       name: 'login',
       component: login
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      component: logout
     },
     {
       path: '/project_show',

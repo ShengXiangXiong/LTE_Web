@@ -45,6 +45,7 @@ export const PostScenePart = (params) => axios.post('api/ScenePart/PostScenePart
 export const PostClusterShp = (params) => axios.post('api/ScenePart/PostClusterShp/no', params);
 export const PostAdjCoefficient = (params) => axios.post('api/ScenePart/PostAdjCoefficient/no', params);
 
+
 export const getShpByAreaLonLat = (params) => axios.post('api/LoadShpLayer/getShpByAreaLonLat', params);
 
 

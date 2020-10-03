@@ -198,7 +198,6 @@
         functionPopupTemplate:null,
         graphic: null,
         gsmNameFind: '绿建大厦中兴宏基站-扇区1',
-      }
     },
     mounted () {
       this.loadMap();

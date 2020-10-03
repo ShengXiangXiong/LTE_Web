@@ -64,6 +64,11 @@
           }
         })
       },
+
+      logout () {
+        this.$router.push({ path: '/logout' })
+      },
+
       async login () {
         this.logining = true;
         let resp = null;
