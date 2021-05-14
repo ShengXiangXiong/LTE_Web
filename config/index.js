@@ -29,7 +29,7 @@ module.exports = {
       将arcgis相关的请求转发到gis server服务器上
        */
       '/arcgis':{
-        target:'http://10.103.252.26:80/',
+        target:'http://10.112.195.163:80/',
         // target:'http://localhost:6080/',
         secure: false, // 如果是https接口，需要配置这个参数
         changeOrigin:true,
@@ -47,7 +47,7 @@ module.exports = {
       },
     },
     '/DotNet':{
-      target:'http://10.103.252.26:80/',
+      target:'http://10.112.195.163:80/',
       // target:'http://localhost:6080/',
       secure: false, // 如果是https接口，需要配置这个参数
       changeOrigin:true,

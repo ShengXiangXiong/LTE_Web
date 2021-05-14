@@ -202,13 +202,13 @@
       },
     mounted () {
         this.loadMap();
-        Bus.$on('locLatLon',(lat, lon, locName)=>{        //监听干扰源定位
+        Bus.$on('locLatLon',(lat, lon, locName,rank)=>{        //监听干扰源定位
           this.sceneLat = lat;
           this.sceneLon = lon;
           // this.locLat = lat;
           // this.locLon = lon;
           // this.locSourceName = locName;
-          this.locInterSource(lon, lat, locName);
+          this.locInterSource(lon, lat, locName,rank);
           // this.locFlag = true;
         });
       },
@@ -229,13 +229,13 @@
           esriLoader.loadCss('https://js.arcgis.com/4.11/esri/css/main.css')
           this.apis = apis
           this.apis.urlUtils.addProxyRule({
-            urlPrefix: 'http://10.103.252.26:6080',  //切片服务地址
-            proxyUrl: 'http://10.103.252.26:80/DotNet/proxy.ashx'   //代理部署地址
+            urlPrefix: 'http://10.112.195.163:6080',  //切片服务地址
+            proxyUrl: 'http://10.112.195.163:80/DotNet/proxy.ashx'   //代理部署地址
           })
 
-          let mapUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer'
-          let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0'
-          let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0'
+          let mapUrl = 'http://10.112.195.163:6080/arcgis/rest/services/LTE2/MapServer'
+          let buildingLayerUrl = 'http://10.112.195.163:6080/arcgis/rest/services/LTE2/MapServer/0'
+          let gsmLayerUrl = 'http://10.112.195.163:6080/arcgis/rest/services/gsm/MapServer/0'
 
           let testName = '小区8覆盖.shp'
           this.map = new apis.map()
@@ -503,9 +503,9 @@
         eventHandler(evt) {
           this.graphic = null;
           this.buildInfo = null;
-          let buildingLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer/0';
-          let gsmLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/gsm/MapServer/0';
-          let sceneLayerUrl = 'http://10.103.252.26:6080/arcgis/rest/services/scene/MapServer/0'
+          let buildingLayerUrl = 'http://10.112.195.163:6080/arcgis/rest/services/LTE2/MapServer/0';
+          let gsmLayerUrl = 'http://10.112.195.163:6080/arcgis/rest/services/gsm/MapServer/0';
+          let sceneLayerUrl = 'http://10.112.195.163:6080/arcgis/rest/services/scene/MapServer/0'
           //创建查询对象
           this.query = new this.apis.Query();
           this.query.outFields = ['*']; //返回所有查询的属性
@@ -704,7 +704,7 @@
 
           let layer = new this.apis.MapImageLayer({
             // url: 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer',
-            url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE2/MapServer',
+            url: 'http://10.112.195.163:6080/arcgis/rest/services/LTE2/MapServer',
             // url: 'http://localhost:6080/arcgis/rest/services/LTE/MapServer',
 
             sublayers: [{
@@ -1048,7 +1048,7 @@
           let layer = new this.apis.MapImageLayer({
             // url: 'http://127.0.0.1:6080/arcgis/rest/services/LTE/MapServer',
             // url: 'http://10.103.242.20:6080/arcgis/rest/services/LTE1/MapServer',
-            url: 'http://10.103.252.26:6080/arcgis/rest/services/LTE/MapServer',
+            url: 'http://10.112.195.163:6080/arcgis/rest/services/LTE/MapServer',
             sublayers: [{
               renderer: renderer,  // renderer
               source: {
@@ -1716,24 +1716,43 @@
           this.addGsmLayer(layerName, '#a6ff02');
         },
 
-        locInterSource(long, lat, locName){
+        locInterSource(long, lat, locName,rank){
           // locSource弹出窗体
           let locSourcePopupTemplate = {
             title: locName,
-
+            content:[{
+              type:"fields",
+              fieldInfos:[{
+                fieldName:"Rank",
+                // label:"FID",
+                visible:true,
+              },{
+                fieldName:"Longitude",
+                // label:"Bid",
+                visible:true,
+              },{
+                fieldName: 'Latitude',
+                visible:true,
+              }]
+            }]
           };
           //
           let graphic = new this.apis.Graphic({
             geometry: new this.apis.Point(long, lat),
             symbol: {
               type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
-              style: "square",
-              color: "blue",
-              size: "8px",  // pixels
-              outline: {  // autocasts as new SimpleLineSymbol()
-                color: [ 255, 255, 0 ],
-                width: 3  // points
-              }
+              style: "circle",
+              color: "red",
+              size: "12px",  // pixels
+              // outline: {  // autocasts as new SimpleLineSymbol()
+              //   color: [ 255, 0, 0 ],
+              //   width: 5  // points
+              // }
+            },
+            attributes: {
+              "Rank": rank,
+              "Longitude": long,
+              "Latitude": lat
             }
           });
           // // 将绘制的图形添加到view

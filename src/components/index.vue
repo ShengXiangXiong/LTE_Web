@@ -50,6 +50,7 @@
           <el-menu-item index="/index/PointSelected">反向跟踪点选取</el-menu-item>
           <el-menu-item index="/index/GeneratedRays">信号反向跟踪</el-menu-item>
           <el-menu-item index="/index/AnalysisLoc">网外干扰源定位</el-menu-item>
+          <el-menu-item index="/index/RankLoc">基于排序模型的网外干扰源定位</el-menu-item>
         </el-submenu>
 
         <el-submenu index="9">

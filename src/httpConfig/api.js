@@ -56,3 +56,5 @@ export const generateRayLoc = (params) => axios.post('api/RayRecord/PostRayRecor
 export const AnalysisLoc = (params) => axios.post('api/ExternalInfLocate/LocateAnalysis', params);
 export const RefreshDTLayer = (params) => axios.post('api/RefreshLayer/PostRefreshDTLayer',params);
 export const RefreshSPLayer = (params) => axios.post('api/RefreshLayer/PostRefreshSPLayer',params);
+
+export const RankLoc = (params) => axios.post('api/RankLoc/LocateAnalysis',params);

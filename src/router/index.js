@@ -25,6 +25,7 @@ import AnalysisLoc from "../components/extraInterferenceLoc/LocbyPathAnalysis/An
 import GeneratedRays from "../components/extraInterferenceLoc/LocbyPathAnalysis/GeneratedRays";
 import PointSelected from "../components/extraInterferenceLoc/LocbyPathAnalysis/PointSelected";
 import DTDataProcess from "../components/extraInterferenceLoc/DTDataProcess";
+import RanklLoc from '../components/extraInterferenceLoc/LocbyPathAnalysis/RanklLoc'
 Vue.use(Router)
 
 export default new Router({
@@ -77,6 +78,7 @@ export default new Router({
         {path: 'GeneratedRays', component: GeneratedRays},
         {path: 'PointSelected', component: PointSelected},
         {path: 'DTDataProcess', component: DTDataProcess},
+        {path: 'RankLoc', component: RanklLoc},
       ]
     },
     {
